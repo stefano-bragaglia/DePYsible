@@ -1,0 +1,57 @@
+# PyCharm #
+###########
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/dictionaries
+
+# PyBuilder #
+#############
+.coverage
+build/
+docs/_build/
+target/
+
+# Python #
+##########
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environments #
+################
+.env/
+.venv
+.venv.leave
+
+# Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.rar
+*.tar
+*.zip
+
+# Logs and databases #
+######################
+*.log
+*.sql
+*.sqlite
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+ehthumbs.db
+Thumbs.db
+._*

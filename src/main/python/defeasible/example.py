@@ -1,4 +1,4 @@
-from defeasible.definitions import Program, Argument, Literal, Rule
+from defeasible.definitions import Literal, Program
 
 if __name__ == '__main__':
     p = Program.parse("""

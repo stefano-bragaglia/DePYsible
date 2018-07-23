@@ -1,0 +1,41 @@
+#!/usr/bin/env python
+import logging
+
+import colorama
+import coloredlogs
+import verboselogs
+
+from defeasible.novel import Program
+
+colorama.init()
+verboselogs.install()
+coloredlogs.install()
+
+_logger = logging.getLogger('defeasible')
+
+
+def main():
+    p = Program.parse("""
+                bird(X) <- chicken(X).
+                bird(X) <- penguin(X).
+                ~flies(X) <- penguin(X).
+                chicken(tina).
+                penguin(tweety).
+                scared(tina).
+                flies(X) -< bird(X).
+                flies(X) -< chicken(X), scared(X).
+                nests_in_trees(X) -< flies(X).
+                ~flies(X) -< chicken(X).
+            """)
+    print(p)
+
+    print()
+    print()
+    print()
+
+    print(p.get_inferred_program())
+
+
+if __name__ == '__main__':
+    main()
+    _logger.verbose('Done.')

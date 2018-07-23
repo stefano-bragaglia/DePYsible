@@ -53,15 +53,9 @@ class Node:
         return self.status
 
 
-        return self.status
-
-
 def process(root: 'Structure', arguments: List['Structure']) -> Node:
     current = Node(root)
     for argument in arguments:
         if argument.is_defeater_for(current.content):
             if current.contains(current.content):
                 pass
-
-
-

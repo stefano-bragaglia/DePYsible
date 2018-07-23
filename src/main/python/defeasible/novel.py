@@ -7,8 +7,10 @@ from typing import Set
 from typing import Tuple
 from typing import Union
 
+import colorama
 from arpeggio import ParserPython
 from arpeggio import visit_parse_tree
+from colorama import Fore, Style
 from dataclasses import dataclass, field
 
 from defeasible.rete import fire_rules
@@ -28,6 +30,12 @@ class Atom:
         return hash(repr(self))
 
     def __repr__(self) -> str:
+        if not self.terms:
+            return self.functor
+
+        return '%s(%s)' % (self.functor, ', '.join(str(term) for term in self.terms))
+
+    def __str__(self) -> str:
         if not self.terms:
             return self.functor
 
@@ -90,6 +98,9 @@ class Literal:
 
     def __repr__(self) -> str:
         return ('~' if self.negated else '') + repr(self.atom)
+
+    def __str__(self) -> str:
+        return ('~' if self.negated else '') + str(self.atom)
 
     @property
     def functor(self) -> str:
@@ -158,6 +169,15 @@ class Rule:
         if self.body:
             content += ', '.join(repr(l) for l in self.body)
         content += '.'
+        return content
+
+    def __str__(self) -> str:
+        content = str(self.head)
+        if self.body or self.type == RuleType.DEFEASIBLE:
+            content += ' %s%s%s ' % (Fore.RED, '<-' if self.type == RuleType.STRICT else '-<', Style.RESET_ALL)
+        if self.body:
+            content += ('%s, %s' % (Fore.RED, Style.RESET_ALL)).join(str(l) for l in self.body)
+        content += '%s.%s' % (Fore.RED, Style.RESET_ALL)
         return content
 
     def is_fact(self) -> bool:
@@ -256,6 +276,44 @@ class Program:
                 '\n'.join(part for part in [
                     '\n'.join(repr(rule) for atom in sorted(defeasibles) for rule in sorted(defeasibles[atom])),
                     '\n'.join(repr(rule) for atom in sorted(presumptions) for rule in sorted(presumptions[atom])),
+                ] if part)
+            )
+
+        return '\n\n'.join(parts)
+
+    def __str__(self) -> str:
+        parts = []
+
+        stricts = {}
+        for strict in self.get_rules(RuleType.STRICT):
+            stricts.setdefault(strict.head.atom, set()).add(strict)
+        if stricts:
+            parts.append(
+                '# Strict rules\n%s' %
+                '\n'.join(str(rule) for atom in sorted(stricts) for rule in sorted(stricts[atom]))
+            )
+
+        facts = {}
+        for fact in self.get_facts():
+            facts.setdefault(fact.head.atom, set()).add(fact)
+        if facts:
+            parts.append(
+                '# Facts\n%s' %
+                '\n'.join(str(rule) for atom in sorted(facts) for rule in sorted(facts[atom]))
+            )
+
+        defeasibles = {}
+        for defeasible in self.get_rules(RuleType.DEFEASIBLE):
+            defeasibles.setdefault(defeasible.head.atom, set()).add(defeasible)
+        presumptions = {}
+        for presumption in self.get_presumptions():
+            presumptions.setdefault(presumption.head.atom, set()).add(presumption)
+        if defeasibles or presumptions:
+            parts.append(
+                '# Defeasible knowledge\n%s' %
+                '\n'.join(part for part in [
+                    '\n'.join(str(rule) for atom in sorted(defeasibles) for rule in sorted(defeasibles[atom])),
+                    '\n'.join(str(rule) for atom in sorted(presumptions) for rule in sorted(presumptions[atom])),
                 ] if part)
             )
 
@@ -464,7 +522,7 @@ def get_disagreements(
         return Iterable()
 
     # TODO optimisable if make sure that rules is actually just stricts
-    stricts = {rule for rule in rules if rule.type == RuleType.STRICT}
+    # stricts = {rule for rule in rules if rule.type == RuleType.STRICT}
     return (disagreement for disagreement in structures
             if disagreement.argument
             and is_substructure(disagreement, structure2)
@@ -472,6 +530,7 @@ def get_disagreements(
 
 
 if __name__ == '__main__':
+    colorama.init()
     p = Program.parse("""
             bird(X) <- chicken(X).
             bird(X) <- penguin(X).

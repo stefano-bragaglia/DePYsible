@@ -26,7 +26,13 @@ def set_properties(project):
     project.set_property("coverage_allow_non_imported_modules", False)  # default is True
     project.set_property("coverage_exceptions", [
         "__init__",
+        "defeasible",
+        "defeasible.definitions",
+        "defeasible.dialectical",
+        "defeasible.example",
         "defeasible.grammar",
+        "defeasible.novel",
+        "defeasible.rete",
         "defeasible.visitor",
     ])
 

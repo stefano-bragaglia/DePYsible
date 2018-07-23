@@ -277,7 +277,11 @@
 #     def get_complement(self):
 #         return Literal(not self.negated, self.atom)
 #
-#     def get_derivation(self, program: 'Program', type_: 'RuleType' = RuleType.DEFEASIBLE) -> Optional[List['Literal']]:
+#     def get_derivation(
+#         self,
+#         program: 'Program',
+#         type_: 'RuleType' = RuleType.DEFEASIBLE,
+#     ) -> Optional[List['Literal']]:
 #         if not program.is_ground():
 #             program = program.infer_program()
 #
