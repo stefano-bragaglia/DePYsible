@@ -37,9 +37,23 @@ class Atom:
 
     def __str__(self) -> str:
         if not self.terms:
-            return self.functor
+            return '%s%s%s' % (Fore.LIGHTWHITE_EX, self.functor, Style.RESET_ALL)
 
-        return '%s(%s)' % (self.functor, ', '.join(str(term) for term in self.terms))
+        return '%s%s%s%s(%s%s%s%s)%s' % (
+            Fore.LIGHTWHITE_EX,
+            self.functor,
+            Style.DIM,
+            Fore.CYAN,
+            Style.RESET_ALL,
+            ('%s%s, %s' % (
+                Style.DIM,
+                Fore.CYAN,
+                Style.RESET_ALL,
+            )).join(render(term) for term in self.terms),
+            Style.DIM,
+            Fore.CYAN,
+            Style.RESET_ALL,
+        )
 
     def arity(self) -> int:
         return len(self.terms)
@@ -288,19 +302,21 @@ class Program:
         for strict in self.get_rules(RuleType.STRICT):
             stricts.setdefault(strict.head.atom, set()).add(strict)
         if stricts:
-            parts.append(
-                '# Strict rules\n%s' %
-                '\n'.join(str(rule) for atom in sorted(stricts) for rule in sorted(stricts[atom]))
-            )
+            parts.append('%s# Strict rules%s\n%s' % (
+                Fore.LIGHTBLACK_EX,
+                Style.RESET_ALL,
+                '\n'.join(str(rule) for atom in sorted(stricts) for rule in sorted(stricts[atom])),
+            ))
 
         facts = {}
         for fact in self.get_facts():
             facts.setdefault(fact.head.atom, set()).add(fact)
         if facts:
-            parts.append(
-                '# Facts\n%s' %
-                '\n'.join(str(rule) for atom in sorted(facts) for rule in sorted(facts[atom]))
-            )
+            parts.append('%s# Facts%s\n%s' % (
+                Fore.LIGHTBLACK_EX,
+                Style.RESET_ALL,
+                '\n'.join(str(rule) for atom in sorted(facts) for rule in sorted(facts[atom])),
+            ))
 
         defeasibles = {}
         for defeasible in self.get_rules(RuleType.DEFEASIBLE):
@@ -309,13 +325,14 @@ class Program:
         for presumption in self.get_presumptions():
             presumptions.setdefault(presumption.head.atom, set()).add(presumption)
         if defeasibles or presumptions:
-            parts.append(
-                '# Defeasible knowledge\n%s' %
+            parts.append('%s# Defeasible knowledge%s\n%s' % (
+                Fore.LIGHTBLACK_EX,
+                Style.RESET_ALL,
                 '\n'.join(part for part in [
                     '\n'.join(str(rule) for atom in sorted(defeasibles) for rule in sorted(defeasibles[atom])),
                     '\n'.join(str(rule) for atom in sorted(presumptions) for rule in sorted(presumptions[atom])),
-                ] if part)
-            )
+                ] if part),
+            ))
 
         return '\n\n'.join(parts)
 
@@ -390,6 +407,17 @@ class Program:
                                              get_arguments(literal,
                                                            program.get_strict(),
                                                            program.get_defeasible()))
+
+
+def render(term: Term) -> str:
+    if type(term) in [bool, float, int]:
+        fore = Fore.CYAN
+    elif is_variable(term):
+        fore = Fore.BLUE
+    else:
+        fore = Fore.GREEN
+
+    return '%s%s%s' % (fore, term, Style.RESET_ALL)
 
 
 def is_variable(term: Term) -> bool:
