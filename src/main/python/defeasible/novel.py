@@ -10,15 +10,92 @@ from typing import Union
 import colorama
 from arpeggio import ParserPython
 from arpeggio import visit_parse_tree
-from colorama import Fore, Style
 from dataclasses import dataclass, field
 
 from defeasible.rete import fire_rules
+from defeasible.theme import COMMENT, FUNCTOR, MUTE_VARIABLE, PUNCTUATION, RESET, STRING, SYMBOLS, TERM, VALUE, VARIABLE
 
 Value = Union[bool, int, float, str]
 Variable = str
 Term = Union[Value, Variable]
 Substitutions = Dict[Variable, Term]
+
+
+def render(term: Term, blind: bool = False) -> str:
+    if blind:
+        return term
+
+    elif type(term) in [bool, float, int]:
+        return '%s%s%s' % (VALUE, term, RESET)
+
+    elif is_variable(term):
+        return '%s%s%s' % (MUTE_VARIABLE if term.startswith('_') else VARIABLE, term, RESET)
+
+    else:
+        return '%s%s%s' % (STRING if term.startswith('"') or term.startswith("'") else TERM, term, RESET)
+
+
+def renders(text: str, style: str, blind: bool = False) -> str:
+    if blind:
+        return text
+
+    return '%s%s%s' % (style, text, RESET)
+
+
+def comma(blind: bool = False) -> str:
+    if blind:
+        return ', '
+
+    return '%s, %s' % (PUNCTUATION, RESET)
+
+
+def lpar(blind: bool = False) -> str:
+    if blind:
+        return '('
+
+    return '%s(%s' % (PUNCTUATION, RESET)
+
+
+def rpar(blind: bool = False) -> str:
+    if blind:
+        return ')'
+
+    return '%s)%s' % (PUNCTUATION, RESET)
+
+
+def negate(blind: bool = False) -> str:
+    if blind:
+        return '~'
+
+    return '%s~%s' % (PUNCTUATION, RESET)
+
+
+def strict(blind: bool = False) -> str:
+    if blind:
+        return ' <- '
+
+    return '%s <- %s' % (SYMBOLS, RESET)
+
+
+def defeasible(blind: bool = False) -> str:
+    if blind:
+        return ' -< '
+
+    return '%s -< %s' % (SYMBOLS, RESET)
+
+
+def conjunct(blind: bool = False) -> str:
+    if blind:
+        return ', '
+
+    return '%s, %s' % (SYMBOLS, RESET)
+
+
+def stop(blind: bool = False) -> str:
+    if blind:
+        return '.'
+
+    return '%s.%s' % (SYMBOLS, RESET)
 
 
 @dataclass(init=True, repr=False, eq=True, order=True)
@@ -36,24 +113,14 @@ class Atom:
         return '%s(%s)' % (self.functor, ', '.join(str(term) for term in self.terms))
 
     def __str__(self) -> str:
-        if not self.terms:
-            return '%s%s%s' % (Fore.LIGHTWHITE_EX, self.functor, Style.RESET_ALL)
+        return self.render()
 
-        return '%s%s%s%s(%s%s%s%s)%s' % (
-            Fore.LIGHTWHITE_EX,
-            self.functor,
-            Style.DIM,
-            Fore.CYAN,
-            Style.RESET_ALL,
-            ('%s%s, %s' % (
-                Style.DIM,
-                Fore.CYAN,
-                Style.RESET_ALL,
-            )).join(render(term) for term in self.terms),
-            Style.DIM,
-            Fore.CYAN,
-            Style.RESET_ALL,
-        )
+    def render(self, blind: bool = False) -> str:
+        if not self.terms:
+            return renders(self.functor, FUNCTOR, blind)
+
+        content = comma(blind).join(render(term, blind) for term in self.terms)
+        return '%s%s%s%s' % (renders(self.functor, FUNCTOR, blind), lpar(blind), content, rpar(blind))
 
     def arity(self) -> int:
         return len(self.terms)
@@ -114,7 +181,10 @@ class Literal:
         return ('~' if self.negated else '') + repr(self.atom)
 
     def __str__(self) -> str:
-        return ('~' if self.negated else '') + str(self.atom)
+        return self.render()
+
+    def render(self, blind: bool = False) -> str:
+        return (negate(blind) if self.negated else '') + self.atom.render(blind)
 
     @property
     def functor(self) -> str:
@@ -186,12 +256,15 @@ class Rule:
         return content
 
     def __str__(self) -> str:
-        content = str(self.head)
+        return self.render()
+
+    def render(self, blind: bool = False) -> str:
+        content = self.head.render(blind)
         if self.body or self.type == RuleType.DEFEASIBLE:
-            content += ' %s%s%s ' % (Fore.RED, '<-' if self.type == RuleType.STRICT else '-<', Style.RESET_ALL)
+            content += strict(blind) if self.type == RuleType.STRICT else defeasible(blind)
         if self.body:
-            content += ('%s, %s' % (Fore.RED, Style.RESET_ALL)).join(str(l) for l in self.body)
-        content += '%s.%s' % (Fore.RED, Style.RESET_ALL)
+            content += conjunct(blind).join(lit.render(blind) for lit in self.body)
+        content += stop(blind)
         return content
 
     def is_fact(self) -> bool:
@@ -296,26 +369,25 @@ class Program:
         return '\n\n'.join(parts)
 
     def __str__(self) -> str:
+        return self.render()
+
+    def render(self, blind: bool = False):
         parts = []
 
         stricts = {}
         for strict in self.get_rules(RuleType.STRICT):
             stricts.setdefault(strict.head.atom, set()).add(strict)
         if stricts:
-            parts.append('%s# Strict rules%s\n%s' % (
-                Fore.LIGHTBLACK_EX,
-                Style.RESET_ALL,
-                '\n'.join(str(rule) for atom in sorted(stricts) for rule in sorted(stricts[atom])),
+            parts.append(renders('# Strict rules\n%%s', COMMENT, blind) % (
+                '\n'.join(rule.render(blind) for atom in sorted(stricts) for rule in sorted(stricts[atom])),
             ))
 
         facts = {}
         for fact in self.get_facts():
             facts.setdefault(fact.head.atom, set()).add(fact)
         if facts:
-            parts.append('%s# Facts%s\n%s' % (
-                Fore.LIGHTBLACK_EX,
-                Style.RESET_ALL,
-                '\n'.join(str(rule) for atom in sorted(facts) for rule in sorted(facts[atom])),
+            parts.append(renders('# Facts\n%%s', COMMENT, blind) % (
+                '\n'.join(rule.render(blind) for atom in sorted(facts) for rule in sorted(facts[atom])),
             ))
 
         defeasibles = {}
@@ -325,12 +397,12 @@ class Program:
         for presumption in self.get_presumptions():
             presumptions.setdefault(presumption.head.atom, set()).add(presumption)
         if defeasibles or presumptions:
-            parts.append('%s# Defeasible knowledge%s\n%s' % (
-                Fore.LIGHTBLACK_EX,
-                Style.RESET_ALL,
+            parts.append(renders('# Defeasible knowledge\n%%s', COMMENT, blind) % (
                 '\n'.join(part for part in [
-                    '\n'.join(str(rule) for atom in sorted(defeasibles) for rule in sorted(defeasibles[atom])),
-                    '\n'.join(str(rule) for atom in sorted(presumptions) for rule in sorted(presumptions[atom])),
+                    '\n'.join(rule.render(blind) for atom in sorted(defeasibles)
+                              for rule in sorted(defeasibles[atom])),
+                    '\n'.join(rule.render(blind) for atom in sorted(presumptions)
+                              for rule in sorted(presumptions[atom])),
                 ] if part),
             ))
 
@@ -407,17 +479,6 @@ class Program:
                                              get_arguments(literal,
                                                            program.get_strict(),
                                                            program.get_defeasible()))
-
-
-def render(term: Term) -> str:
-    if type(term) in [bool, float, int]:
-        fore = Fore.CYAN
-    elif is_variable(term):
-        fore = Fore.BLUE
-    else:
-        fore = Fore.GREEN
-
-    return '%s%s%s' % (fore, term, Style.RESET_ALL)
 
 
 def is_variable(term: Term) -> bool:
