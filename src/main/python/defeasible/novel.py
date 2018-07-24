@@ -378,7 +378,7 @@ class Program:
         for strict in self.get_rules(RuleType.STRICT):
             stricts.setdefault(strict.head.atom, set()).add(strict)
         if stricts:
-            parts.append(renders('# Strict rules\n%%s', COMMENT, blind) % (
+            parts.append(renders('# Strict rules\n%s', COMMENT, blind) % (
                 '\n'.join(rule.render(blind) for atom in sorted(stricts) for rule in sorted(stricts[atom])),
             ))
 
@@ -386,7 +386,7 @@ class Program:
         for fact in self.get_facts():
             facts.setdefault(fact.head.atom, set()).add(fact)
         if facts:
-            parts.append(renders('# Facts\n%%s', COMMENT, blind) % (
+            parts.append(renders('# Facts\n%s', COMMENT, blind) % (
                 '\n'.join(rule.render(blind) for atom in sorted(facts) for rule in sorted(facts[atom])),
             ))
 
@@ -397,7 +397,7 @@ class Program:
         for presumption in self.get_presumptions():
             presumptions.setdefault(presumption.head.atom, set()).add(presumption)
         if defeasibles or presumptions:
-            parts.append(renders('# Defeasible knowledge\n%%s', COMMENT, blind) % (
+            parts.append(renders('# Defeasible knowledge\n%s', COMMENT, blind) % (
                 '\n'.join(part for part in [
                     '\n'.join(rule.render(blind) for atom in sorted(defeasibles)
                               for rule in sorted(defeasibles[atom])),

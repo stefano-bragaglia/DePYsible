@@ -33,6 +33,7 @@ def set_properties(project):
         "defeasible.grammar",
         "defeasible.novel",
         "defeasible.rete",
+        "defeasible.theme",
         "defeasible.visitor",
     ])
 

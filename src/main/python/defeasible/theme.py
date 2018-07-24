@@ -1,13 +1,13 @@
 from colorama import Fore, Style
 
 COMMENT = '%s%s' % (Style.DIM, Fore.LIGHTBLACK_EX)
-FUNCTOR = '%s' % Fore.LIGHTWHITE_EX
-VARIABLE = '%s' % Fore.MAGENTA
+FUNCTOR = '%s%s' % (Style.NORMAL, Fore.WHITE)
+VARIABLE = '%s%s' % (Style.NORMAL, Fore.MAGENTA)
 MUTE_VARIABLE = '%s%s' % (Style.DIM, Fore.MAGENTA)
-STRING = '%s' % Fore.GREEN
-VALUE = '%s' % Fore.CYAN
-TERM = '%s' % Fore.WHITE
-PUNCTUATION = '%s' % Fore.BLUE
-SYMBOLS = '%s' % Fore.RED
+STRING = '%s%s' % (Style.NORMAL, Fore.GREEN)
+VALUE = '%s%s' % (Style.NORMAL, Fore.CYAN)
+TERM = '%s%s' % (Style.NORMAL, Fore.YELLOW)
+PUNCTUATION = '%s%s' % (Style.DIM, Fore.BLUE)
+SYMBOLS = '%s%s' % (Style.NORMAL, Fore.RED)
 
 RESET = '%s' % Style.RESET_ALL
