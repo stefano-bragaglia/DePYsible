@@ -1,6 +1,33 @@
 import os
+import re
 
 from colorama import Fore, Style
+
+from defeasible.novel import Program
+
+
+def main():
+    print('Welcome to Defeasible (version 0.0.1)')
+    print('Type "help", "copyright", "credits" or "license" for more information.')
+    print()
+
+    program = Program([])
+    while True:
+        command = input('?- ').strip()
+
+        if command == 'halt.':
+            break
+
+        elif command == 'listing.':
+            print(program.render())
+
+        elif re.match(r'\[(.*)\]\.', command):
+            filename = command[1:-2]
+            try:
+                with open(filename, 'r') as file:
+                    program = Program.parse(file.read())
+            except Exception as e:
+                print('ERROR: %s' % str(e))
 
 
 def get_license():

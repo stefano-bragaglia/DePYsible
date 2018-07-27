@@ -4,52 +4,14 @@ import logging
 import colorama
 import coloredlogs
 import verboselogs
-from colorama import Fore, Style
 
-from src.main.python import get_license
+from src.main.python import main
 
 colorama.init()
 verboselogs.install()
 coloredlogs.install()
 
 _logger = logging.getLogger('defeasible')
-
-
-def main():
-    print('%sWelcome to %sDefeasible %s%s(version %s0.0.1%s)%s' % (
-        Fore.WHITE, Fore.CYAN, Style.DIM, Fore.WHITE, Fore.LIGHTWHITE_EX, Fore.WHITE, Style.RESET_ALL))
-    print('Type "help", "copyright", "credits" or "license" for more information.')
-    print()
-    while True:
-        command = input('%s>>>%s ' % (Fore.GREEN, Style.RESET_ALL))
-
-        if command == 'exit':
-            break
-        elif command == 'license().':
-            get_license()
-        else:
-            print("%s%sERROR: undefined procedure '%s'%s" % (Style.DIM, Fore.RED, command, Style.RESET_ALL))
-
-    # p = Program.parse("""
-    #             bird(X) <- chicken(X).
-    #             bird(X) <- penguin(X).
-    #             ~flies(X) <- penguin(X).
-    #             chicken(tina).
-    #             penguin(tweety).
-    #             scared(tina).
-    #             flies(X) -< bird(X).
-    #             flies(X) -< chicken(X), scared(X).
-    #             nests_in_trees(X) -< flies(X).
-    #             ~flies(X) -< chicken(X).
-    #         """)
-    # print(p)
-    #
-    # print()
-    # print()
-    # print()
-    #
-    # print(p.get_inferred_program())
-
 
 if __name__ == '__main__':
     main()
