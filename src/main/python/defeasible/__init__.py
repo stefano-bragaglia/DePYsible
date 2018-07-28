@@ -24,7 +24,7 @@ def main():
         elif command == 'ground.':
             program = program.get_ground_program()
 
-        elif command == 'variable.':
+        elif command == 'parent.':
             program = program.get_variable_program()
 
         elif re.match(r'\[(.*)\]\.', command):
