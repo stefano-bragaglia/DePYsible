@@ -211,7 +211,7 @@ class Renderer:
         index = {}
         for rule in rules:
             key = rule.head.atom
-            uncovered = not bool(program.get_derivation(rule.head))
+            uncovered = program.is_ground() and not bool(program.get_derivation(rule.head))
             index.setdefault(key, {}).setdefault(rule, uncovered)
 
         return '\n'.join(
