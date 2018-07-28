@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from assertpy import assert_that
 
-from defeasible.definitions import Atom
+from defeasible.domain.definitions import Atom
 
 
 class TestAtomUnification(TestCase):

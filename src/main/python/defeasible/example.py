@@ -1,4 +1,4 @@
-from defeasible.definitions import Literal, Program
+from defeasible.domain.definitions import Literal, Program
 
 if __name__ == '__main__':
     p = Program.parse("""
@@ -104,3 +104,41 @@ if __name__ == '__main__':
 
     print()
     print('Done.')
+
+    # if __name__ == '__main__':
+    #     colorama.init()
+    #     p = Program.parse("""
+    #             bird(X) <- chicken(X).
+    #             bird(X) <- penguin(X).
+    #             ~flies(X) <- penguin(X).
+    #             chicken(tina).
+    #             penguin(tweety).
+    #             scared(tina).
+    #             flies(X) -< bird(X).
+    #             flies(X) -< chicken(X), scared(X).
+    #             nests_in_trees(X) -< flies(X).
+    #             ~flies(X) -< chicken(X).
+    #         """)
+    #     print(p)
+    #
+    #     print('-' * 120)
+    #
+    #     print(p.get_ground_program())
+    #
+    #     print('-' * 120)
+    #
+    #     for literal in sorted(p.get_ground_program().as_literals()):
+    #         print(literal, '>', ' ' * (25 - len(repr(literal))), p.get_derivation(literal))
+    #
+    #     print('-' * 120)
+    #
+    #     for literal in sorted(p.get_ground_program().as_literals()):
+    #         arguments = p.get_arguments(literal)
+    #         if not arguments:
+    #             print(literal, '>', ' ' * (25 - len(repr(literal))), '-')
+    #         else:
+    #             print(literal, '>', ' ' * (25 - len(repr(literal))),
+    #                   '\n                             '.join([repr(a) for a in arguments if a]))
+    #
+    #     print('-' * 120)
+

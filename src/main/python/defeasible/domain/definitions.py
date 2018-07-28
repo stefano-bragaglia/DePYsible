@@ -1,101 +1,19 @@
 import re
 from enum import Enum
-from typing import Dict, Iterable
+from typing import Dict, Tuple
+from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Set
-from typing import Tuple
 from typing import Union
 
-import colorama
-from arpeggio import ParserPython
-from arpeggio import visit_parse_tree
-from dataclasses import dataclass, field
-
-from defeasible.rete import fire_rules
-from defeasible.theme import COMMENT, FUNCTOR, MUTE_VARIABLE, PUNCTUATION, RESET, STRING, SYMBOLS, TERM, VALUE, VARIABLE
+from dataclasses import dataclass
+from dataclasses import field
 
 Value = Union[bool, int, float, str]
 Variable = str
 Term = Union[Value, Variable]
 Substitutions = Dict[Variable, Term]
-
-
-def render(term: Term, blind: bool = False) -> str:
-    if blind:
-        return term
-
-    elif type(term) in [bool, float, int]:
-        return '%s%s%s' % (VALUE, term, RESET)
-
-    elif is_variable(term):
-        return '%s%s%s' % (MUTE_VARIABLE if term.startswith('_') else VARIABLE, term, RESET)
-
-    else:
-        return '%s%s%s' % (STRING if term.startswith('"') or term.startswith("'") else TERM, term, RESET)
-
-
-def renders(text: str, style: str, blind: bool = False) -> str:
-    if blind:
-        return text
-
-    return '%s%s%s' % (style, text, RESET)
-
-
-def comma(blind: bool = False) -> str:
-    if blind:
-        return ', '
-
-    return '%s, %s' % (PUNCTUATION, RESET)
-
-
-def lpar(blind: bool = False) -> str:
-    if blind:
-        return '('
-
-    return '%s(%s' % (PUNCTUATION, RESET)
-
-
-def rpar(blind: bool = False) -> str:
-    if blind:
-        return ')'
-
-    return '%s)%s' % (PUNCTUATION, RESET)
-
-
-def negate(blind: bool = False) -> str:
-    if blind:
-        return '~'
-
-    return '%s~%s' % (PUNCTUATION, RESET)
-
-
-def strict(blind: bool = False) -> str:
-    if blind:
-        return ' <- '
-
-    return '%s <- %s' % (SYMBOLS, RESET)
-
-
-def defeasible(blind: bool = False) -> str:
-    if blind:
-        return ' -< '
-
-    return '%s -< %s' % (SYMBOLS, RESET)
-
-
-def conjunct(blind: bool = False) -> str:
-    if blind:
-        return ', '
-
-    return '%s, %s' % (SYMBOLS, RESET)
-
-
-def stop(blind: bool = False) -> str:
-    if blind:
-        return '.'
-
-    return '%s.%s' % (SYMBOLS, RESET)
 
 
 @dataclass(init=True, repr=False, eq=True, order=True)
@@ -112,22 +30,12 @@ class Atom:
 
         return '%s(%s)' % (self.functor, ', '.join(str(term) for term in self.terms))
 
-    def __str__(self) -> str:
-        return self.render()
-
-    def render(self, blind: bool = False) -> str:
-        if not self.terms:
-            return renders(self.functor, FUNCTOR, blind)
-
-        content = comma(blind).join(render(term, blind) for term in self.terms)
-        return '%s%s%s%s' % (renders(self.functor, FUNCTOR, blind), lpar(blind), content, rpar(blind))
-
     def arity(self) -> int:
         return len(self.terms)
 
     def is_ground(self) -> bool:
         for term in self.terms:
-            if is_variable(term):
+            if self.is_variable(term):
                 return False
 
         return True
@@ -144,7 +52,7 @@ class Atom:
 
         substitutions = {}
         for i, term in enumerate(self.terms):
-            if is_variable(term):
+            if self.is_variable(term):
                 if term not in substitutions:
                     substitutions[term] = ground.terms[i]
                 elif substitutions[term] != ground.terms[i]:
@@ -156,7 +64,11 @@ class Atom:
         return substitutions
 
     def substitutes(self, subs: Substitutions) -> 'Atom':
-        return Atom(self.functor, [subs.get(term, '_') if is_variable(term) else term for term in self.terms])
+        return Atom(self.functor, [subs.get(term, '_') if self.is_variable(term) else term for term in self.terms])
+
+    @classmethod
+    def is_variable(cls, term: Term) -> bool:
+        return type(term) is str and re.match(r'[_A-Z][a-z_0-9]*', term)
 
 
 @dataclass(init=True, repr=False, eq=True, order=True)
@@ -166,8 +78,10 @@ class Literal:
 
     @staticmethod
     def parse(content: str) -> 'Literal':
-        from defeasible.grammar import literal, comment
-        from defeasible.visitor import DefeasibleVisitor
+        from arpeggio import ParserPython
+        from arpeggio import visit_parse_tree
+        from defeasible.language.grammar import literal, comment
+        from defeasible.language.visitor import DefeasibleVisitor
 
         parser = ParserPython(literal, comment_def=comment)
         parse_tree = parser.parse(content)
@@ -179,12 +93,6 @@ class Literal:
 
     def __repr__(self) -> str:
         return ('~' if self.negated else '') + repr(self.atom)
-
-    def __str__(self) -> str:
-        return self.render()
-
-    def render(self, blind: bool = False) -> str:
-        return (negate(blind) if self.negated else '') + self.atom.render(blind)
 
     @property
     def functor(self) -> str:
@@ -235,8 +143,10 @@ class Rule:
 
     @staticmethod
     def parse(content: str) -> 'Rule':
-        from defeasible.grammar import rule, comment
-        from defeasible.visitor import DefeasibleVisitor
+        from arpeggio import ParserPython
+        from arpeggio import visit_parse_tree
+        from defeasible.language.grammar import rule, comment
+        from defeasible.language.visitor import DefeasibleVisitor
 
         parser = ParserPython(rule, comment_def=comment)
         parse_tree = parser.parse(content)
@@ -253,18 +163,6 @@ class Rule:
         if self.body:
             content += ', '.join(repr(l) for l in self.body)
         content += '.'
-        return content
-
-    def __str__(self) -> str:
-        return self.render()
-
-    def render(self, blind: bool = False) -> str:
-        content = self.head.render(blind)
-        if self.body or self.type == RuleType.DEFEASIBLE:
-            content += strict(blind) if self.type == RuleType.STRICT else defeasible(blind)
-        if self.body:
-            content += conjunct(blind).join(lit.render(blind) for lit in self.body)
-        content += stop(blind)
         return content
 
     def is_fact(self) -> bool:
@@ -309,14 +207,17 @@ Derivation = List[Literal]
 class Program:
     rules: List[Rule]
     _ground: 'Program' = None
+    _parent: 'Program' = None
     _strict: Set[Rule] = None
     _defeasible: Set[Rule] = None
     _arguments: Dict[Literal, Set[Structure]] = field(default_factory=dict)
 
     @staticmethod
     def parse(content: str) -> 'Program':
-        from defeasible.grammar import program, comment
-        from defeasible.visitor import DefeasibleVisitor
+        from arpeggio import ParserPython
+        from arpeggio import visit_parse_tree
+        from defeasible.language.grammar import program, comment
+        from defeasible.language.visitor import DefeasibleVisitor
 
         parser = ParserPython(program, comment_def=comment)
         parse_tree = parser.parse(content)
@@ -368,46 +269,6 @@ class Program:
 
         return '\n\n'.join(parts)
 
-    def __str__(self) -> str:
-        return self.render()
-
-    def render(self, blind: bool = False):
-        parts = []
-
-        stricts = {}
-        for strict in self.get_rules(RuleType.STRICT):
-            stricts.setdefault(strict.head.atom, set()).add(strict)
-        if stricts:
-            parts.append(renders('# Strict rules\n%s', COMMENT, blind) % (
-                '\n'.join(rule.render(blind) for atom in sorted(stricts) for rule in sorted(stricts[atom])),
-            ))
-
-        facts = {}
-        for fact in self.get_facts():
-            facts.setdefault(fact.head.atom, set()).add(fact)
-        if facts:
-            parts.append(renders('# Facts\n%s', COMMENT, blind) % (
-                '\n'.join(rule.render(blind) for atom in sorted(facts) for rule in sorted(facts[atom])),
-            ))
-
-        defeasibles = {}
-        for defeasible in self.get_rules(RuleType.DEFEASIBLE):
-            defeasibles.setdefault(defeasible.head.atom, set()).add(defeasible)
-        presumptions = {}
-        for presumption in self.get_presumptions():
-            presumptions.setdefault(presumption.head.atom, set()).add(presumption)
-        if defeasibles or presumptions:
-            parts.append(renders('# Defeasible knowledge\n%s', COMMENT, blind) % (
-                '\n'.join(part for part in [
-                    '\n'.join(rule.render(blind) for atom in sorted(defeasibles)
-                              for rule in sorted(defeasibles[atom])),
-                    '\n'.join(rule.render(blind) for atom in sorted(presumptions)
-                              for rule in sorted(presumptions[atom])),
-                ] if part),
-            ))
-
-        return '\n\n'.join(parts)
-
     def get_facts(self) -> Iterable[Rule]:
         return (rule for rule in self.rules if rule.is_fact())
 
@@ -419,7 +280,7 @@ class Program:
                 if not (rule.is_fact() or rule.is_presumption() or type and rule.type != type))
 
     def get_strict(self) -> Set[Rule]:
-        program = self.get_inferred_program()
+        program = self.get_ground_program()
 
         program._strict, program._defeasible = set(), set()
         for rule in program.rules:
@@ -431,7 +292,7 @@ class Program:
         return program._strict
 
     def get_defeasible(self) -> Set[Rule]:
-        program = self.get_inferred_program()
+        program = self.get_ground_program()
 
         if program._defeasible is None:
             program._strict, program._defeasible = set(), set()
@@ -453,27 +314,36 @@ class Program:
 
         return True
 
-    def get_inferred_program(self) -> 'Program':
+    def get_ground_program(self) -> 'Program':
+        from defeasible.domain.rete import fire_rules
+
         if self.is_ground():
             return self
 
         if not self._ground:
             self._ground = Program(fire_rules(self))
+            self._ground._parent = self
 
         return self._ground
+
+    def get_variable_program(self) -> 'Program':
+        if self._parent:
+            return self._parent
+
+        return self
 
     def is_invalid(self) -> bool:
         return is_contradictory(self.get_strict())
 
     def get_derivation(self, literal: Literal, type: RuleType = RuleType.DEFEASIBLE) -> Optional[Derivation]:
-        program = self.get_inferred_program()
+        program = self.get_ground_program()
         if type == RuleType.STRICT:
             return get_derivation(literal, program.get_rules(RuleType.STRICT))
 
         return get_derivation(literal, program.rules)
 
     def get_arguments(self, literal: Literal) -> Set[Structure]:
-        program = self.get_inferred_program()
+        program = self.get_ground_program()
 
         return program._arguments.setdefault(literal,
                                              get_arguments(literal,
@@ -616,41 +486,3 @@ def get_disagreements(
             if disagreement.argument
             and is_substructure(disagreement, structure2)
             and disagree(structure1.conclusion, disagreement.conclusion, rules))
-
-
-if __name__ == '__main__':
-    colorama.init()
-    p = Program.parse("""
-            bird(X) <- chicken(X).
-            bird(X) <- penguin(X).
-            ~flies(X) <- penguin(X).
-            chicken(tina).
-            penguin(tweety).
-            scared(tina).
-            flies(X) -< bird(X).
-            flies(X) -< chicken(X), scared(X).
-            nests_in_trees(X) -< flies(X).
-            ~flies(X) -< chicken(X).
-        """)
-    print(p)
-
-    print('-' * 120)
-
-    print(p.get_inferred_program())
-
-    print('-' * 120)
-
-    for literal in sorted(p.get_inferred_program().as_literals()):
-        print(literal, '>', ' ' * (25 - len(repr(literal))), p.get_derivation(literal))
-
-    print('-' * 120)
-
-    for literal in sorted(p.get_inferred_program().as_literals()):
-        arguments = p.get_arguments(literal)
-        if not arguments:
-            print(literal, '>', ' ' * (25 - len(repr(literal))), '-')
-        else:
-            print(literal, '>', ' ' * (25 - len(repr(literal))),
-                  '\n                             '.join([repr(a) for a in arguments if a]))
-
-    print('-' * 120)

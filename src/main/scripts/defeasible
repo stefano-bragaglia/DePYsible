@@ -5,7 +5,7 @@ import colorama
 import coloredlogs
 import verboselogs
 
-from src.main.python import main
+from defeasible import main
 
 colorama.init()
 verboselogs.install()

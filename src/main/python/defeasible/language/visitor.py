@@ -4,7 +4,10 @@ from typing import List, Union
 
 from arpeggio import NonTerminal, PTNodeVisitor, Terminal
 
-from defeasible.novel import Atom, Literal, Program, Rule, RuleType
+from defeasible import Program
+from defeasible.domain.definitions import RuleType, Rule
+from defeasible.domain.definitions import Literal
+from defeasible.domain.definitions import Atom
 
 Node = Union[Terminal, NonTerminal]
 

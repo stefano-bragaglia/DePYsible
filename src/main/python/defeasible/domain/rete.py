@@ -81,7 +81,7 @@ class Leaf:
         parent.children.add(self)
 
     def notify(self, ground: List['Literal'], subs: 'Substitutions', parent: Union[Alfa, 'Beta']):
-        from defeasible.novel import Rule
+        from defeasible.domain.definitions import Rule
 
         payload = (ground, subs)
         if payload not in self.memory:

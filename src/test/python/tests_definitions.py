@@ -3,7 +3,7 @@ from unittest import TestCase
 from arpeggio import NoMatch
 from assertpy import assert_that, fail
 
-from defeasible.definitions import Atom, Literal, Rule, RuleType
+from defeasible.domain.definitions import Atom, Literal, Rule, RuleType
 
 
 class TestAtom(TestCase):
