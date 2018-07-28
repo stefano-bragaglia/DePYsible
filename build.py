@@ -233,6 +233,7 @@ def set_properties(project):
         "defeasible.dialectical",
         "defeasible.domain",
         "defeasible.domain.definitions",
+        "defeasible.domain.rendering",
         "defeasible.domain.rete",
         "defeasible.domain.theme",
         "defeasible.example",
