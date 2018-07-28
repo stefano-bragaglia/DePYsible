@@ -207,6 +207,13 @@ class Renderer:
         return content
 
     @classmethod
+    def render_comment(cls, comment: str, uncovered: bool = False, blind: bool = False) -> str:
+        from defeasible.domain.theme import COMMENT
+        from defeasible.domain.theme import RESET
+
+        return '%s%s%s' % (COMMENT, comment, RESET)
+
+    @classmethod
     def render_rules(cls, program: 'Program', rules: Set['Rule'], uncovered: bool = False, blind: bool = False) -> str:
         index = {}
         for rule in rules:
@@ -226,14 +233,14 @@ class Renderer:
 
         stricts = cls.render_rules(program, program.get_rules(RuleType.STRICT), uncovered, blind)
         if stricts:
-            stricts = '# Strict rules\n' + stricts
+            stricts = cls.render_comment('# Strict rules') + '\n' + stricts
         facts = cls.render_rules(program, program.get_facts(), uncovered, blind)
         if facts:
-            facts = '# Facts\n' + facts
+            facts = cls.render_comment('# Facts') + '\n' + facts
 
         defeasibles = cls.render_rules(program, program.get_rules(RuleType.DEFEASIBLE), uncovered, blind)
         defeasibles += cls.render_rules(program, program.get_presumptions(), uncovered, blind)
         if defeasibles:
-            defeasibles = '# Defeasible knowledge\n' + defeasibles
+            defeasibles = cls.render_comment('# Defeasible knowledge') + '\n' + defeasibles
 
         return '\n\n'.join(part for part in [stricts, facts, defeasibles] if part)
