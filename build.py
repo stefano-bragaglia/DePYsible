@@ -230,14 +230,14 @@ def set_properties(project):
     project.set_property("coverage_exceptions", [
         "__init__",
         "defeasible",
-        "defeasible.definitions",
-        "defeasible.dialectical",
+        "defeasible.old_definitions",
         "defeasible.example",
-        "defeasible.grammar",
-        "defeasible.novel",
-        "defeasible.rete",
-        "defeasible.theme",
-        "defeasible.visitor",
+        "defeasible.dialectical",
+        "defeasible.language",
+        "defeasible.language.grammar",
+        "defeasible.language.visitor",
+        "defeasible.domain.theme",
+        "defeasible.domain.rete",
     ])
 
     project.set_property("coverage_threshold_warn", 70)  # default is 70
