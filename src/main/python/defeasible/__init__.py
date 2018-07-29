@@ -1,4 +1,6 @@
+import os
 import re
+import subprocess
 
 from colorama import Fore, Style
 
@@ -7,16 +9,15 @@ from defeasible.domain.rendering import Renderer
 
 
 def main(blind: bool = False):
-    show_intro()
+    filename = None
     program = Program([])
+
+    show_intro()
     while True:
         command = input(prompt(blind)).strip()
 
         if command == 'halt.':
             break
-
-        elif command == 'help.':
-            show_help(blind)
 
         elif command == 'credits.':
             show_credits(blind)
@@ -24,25 +25,39 @@ def main(blind: bool = False):
         elif command == 'copyright.':
             show_copyright(blind)
 
+        elif command == 'edit.':
+            if not filename:
+                filename = get_filename()
+            subprocess.call(['nano', filename])
+
+        elif command == 'ground.':
+            program = program.get_ground_program()
+
+        elif command == 'help.':
+            show_help(blind)
+
         elif command == 'license.':
             show_license(blind)
 
         elif command == 'listing.':
             print(Renderer.render(program, blind=blind))
 
-        elif command == 'ground.':
-            program = program.get_ground_program()
-
         elif command == 'parent.':
             program = program.get_variable_program()
 
+        elif command == 'reset.':
+            filename = None
+            program = Program([])
+
         elif re.match(r'\[(.*)\]\.', command):
-            filename = command[1:-2]
+            tmp_filename = command[1:-2]
             try:
-                with open(filename, 'r') as file:
+                with open(tmp_filename, 'r') as file:
                     program = Program.parse(file.read())
             except Exception as e:
                 show_error(str(e), blind)
+            else:
+                filename = tmp_filename
 
         else:
             rules = set(program.rules)
@@ -52,6 +67,15 @@ def main(blind: bool = False):
                 show_error(str(e), blind)
             else:
                 program = Program(list(rules))
+
+
+def get_filename() -> str:
+    i = 0
+    while True:
+        filename = os.path.join(os.getcwd(), 'defeasible_%d.pl' % i)
+        if not os.path.exists(filename):
+            return filename
+        i += 1
 
 
 def show_intro(blind: bool = False):
@@ -88,17 +112,18 @@ def show_error(message: str, blind: bool = False):
 
 def show_credits(blind: bool = False):
     if blind:
-        print('  This work was inspired by A. García and G. Simari. '
-              '"Defeasible Logic Programming: An Argumentative Approach,"')
-        print('  in Theory and Practice of Logic Programming, '
-              '4(1):95–138, 2004. https://arxiv.org/abs/cs/0302029')
+        print('  This work was inspired by A. García and G. Simari. "Defeasible Logic Programming:')
+        print('  An Argumentative Approach," in Theory and Practice of Logic Programming, ')
+        print('  4(1):95–138, 2004. https://arxiv.org/abs/cs/0302029')
 
-    print('  %s%sThis work was inspired by%s A. García and G. Simari. '
-          '%s"Defeasible Logic Programming: An Argumentative Approach,"%s%s' %
+    print('  %s%sThis work was inspired by %sA. García and G. Simari. %s"Defeasible Logic Programming:%s%s' %
           (Style.DIM, Fore.WHITE, Style.RESET_ALL, Fore.BLUE, Fore.RESET, Style.RESET_ALL))
-    print('  %s%sin %s%sTheory and Practice of Logic Programming, '
-          '%s4(1):95–138, 2004. %shttps://arxiv.org/abs/cs/0302029%s%s' %
-          (Style.DIM, Fore.WHITE, Style.RESET_ALL, Fore.GREEN, Fore.CYAN, Fore.YELLOW, Fore.RESET, Style.RESET_ALL))
+    print('  %s%sAn Argumentative Approach,"%s%s in %s%sTheory and Practice of Logic Programming%s%s,%s%s' %
+          (Style.NORMAL, Fore.BLUE, Style.DIM, Fore.WHITE, Style.NORMAL, Fore.GREEN,
+           Style.DIM, Fore.WHITE, Fore.RESET, Style.RESET_ALL))
+    print('  %s%s4(1):95–138%s%s, %s%s2004%s%s. %s%shttps://arxiv.org/abs/cs/0302029%s%s' %
+          (Style.NORMAL, Fore.CYAN, Style.DIM, Fore.WHITE, Style.NORMAL, Fore.YELLOW,
+           Style.DIM, Fore.WHITE, Style.NORMAL, Fore.RED, Style.RESET_ALL, Fore.RESET))
 
 
 def show_copyright(blind: bool = False):
@@ -114,19 +139,23 @@ def show_help(blind: bool = False):
     if blind:
         print(' copyright.  Shows copyright information')
         print(' credits.    Shows credits information')
+        print(' edit.       Edit current program in external editor')
         print(' ground.     Makes current program ground (if need be)')
         print(' halt.       Stops this interpreter\'s session')
         print(' license.    Shows license')
         print(' listing.    Lists the content of current program')
         print(' parent.     Reverts to non-ground program (if available)')
+        print(' reset.      Drop current program')
 
     print(' %scopyright.  %sShows copyright information%s' % (Fore.YELLOW, Fore.WHITE, Fore.RESET))
     print(' %scredits.    %sShows credits information%s' % (Fore.YELLOW, Fore.WHITE, Fore.RESET))
+    print(' %sedit.       %sEdit current program in external editor%s' % (Fore.YELLOW, Fore.WHITE, Fore.RESET))
     print(' %sground.     %sMakes current program ground (if need be)%s' % (Fore.YELLOW, Fore.WHITE, Fore.RESET))
     print(' %shalt.       %sStops this session%s' % (Fore.YELLOW, Fore.WHITE, Fore.RESET))
     print(' %slicense.    %sShows license%s' % (Fore.YELLOW, Fore.WHITE, Fore.RESET))
     print(' %slisting.    %sLists the content of current program%s' % (Fore.YELLOW, Fore.WHITE, Fore.RESET))
     print(' %sparent.     %sReverts to non-ground program (if available)%s' % (Fore.YELLOW, Fore.WHITE, Fore.RESET))
+    print(' %sreset.      %sDrop current program%s' % (Fore.YELLOW, Fore.WHITE, Fore.RESET))
 
 
 def show_license(blind: bool = False):
