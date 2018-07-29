@@ -13,3 +13,9 @@ flies(X) -< bird(X).
 flies(X) -< chicken(X), scared(X).
 ~flies(X) -< chicken(X).
 nests_in_trees(X) -< flies(X).
+
+% Uncorrelated
+animal(X) <- other(_Mute, X).
+value(True, -5, 3.14).
+string("text", 'text', text).
+"STRING"().
