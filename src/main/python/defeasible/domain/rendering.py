@@ -24,6 +24,66 @@ class Renderer:
             return '%s, %s' % (PUNCTUATION, RESET)
 
     @staticmethod
+    def colon(uncovered: bool = False, blind: bool = False) -> str:
+        from defeasible.domain.theme import ARGUMENTATION
+        from defeasible.domain.theme import RESET
+        from defeasible.domain.theme import UNCOVERED
+
+        if blind:
+            return ' ; '
+
+        elif uncovered:
+            return '%s ; %s' % (UNCOVERED, RESET)
+
+        else:
+            return '%s ; %s' % (ARGUMENTATION, RESET)
+
+    @staticmethod
+    def empty(uncovered: bool = False, blind: bool = False) -> str:
+        from defeasible.domain.theme import ARGUMENTATION
+        from defeasible.domain.theme import RESET
+        from defeasible.domain.theme import UNCOVERED
+
+        if blind:
+            return '∅'
+
+        elif uncovered:
+            return '%s∅%s' % (UNCOVERED, RESET)
+
+        else:
+            return '%s∅%s' % (ARGUMENTATION, RESET)
+
+    @staticmethod
+    def lcur(uncovered: bool = False, blind: bool = False) -> str:
+        from defeasible.domain.theme import ARGUMENTATION
+        from defeasible.domain.theme import RESET
+        from defeasible.domain.theme import UNCOVERED
+
+        if blind:
+            return '{'
+
+        elif uncovered:
+            return '%s{%s' % (UNCOVERED, RESET)
+
+        else:
+            return '%s{%s' % (ARGUMENTATION, RESET)
+
+    @staticmethod
+    def rcur(uncovered: bool = False, blind: bool = False) -> str:
+        from defeasible.domain.theme import ARGUMENTATION
+        from defeasible.domain.theme import RESET
+        from defeasible.domain.theme import UNCOVERED
+
+        if blind:
+            return '}'
+
+        elif uncovered:
+            return '%s}%s' % (UNCOVERED, RESET)
+
+        else:
+            return '%s}%s' % (ARGUMENTATION, RESET)
+
+    @staticmethod
     def lpar(uncovered: bool = False, blind: bool = False) -> str:
         from defeasible.domain.theme import PUNCTUATION
         from defeasible.domain.theme import RESET
@@ -52,6 +112,36 @@ class Renderer:
 
         else:
             return '%s)%s' % (PUNCTUATION, RESET)
+
+    @staticmethod
+    def lang(uncovered: bool = False, blind: bool = False) -> str:
+        from defeasible.domain.theme import ARGUMENTATION
+        from defeasible.domain.theme import RESET
+        from defeasible.domain.theme import UNCOVERED
+
+        if blind:
+            return '<'
+
+        elif uncovered:
+            return '%s<%s' % (UNCOVERED, RESET)
+
+        else:
+            return '%s<%s' % (ARGUMENTATION, RESET)
+
+    @staticmethod
+    def rang(uncovered: bool = False, blind: bool = False) -> str:
+        from defeasible.domain.theme import ARGUMENTATION
+        from defeasible.domain.theme import RESET
+        from defeasible.domain.theme import UNCOVERED
+
+        if blind:
+            return '>'
+
+        elif uncovered:
+            return '%s>%s' % (UNCOVERED, RESET)
+
+        else:
+            return '%s>%s' % (ARGUMENTATION, RESET)
 
     @staticmethod
     def stop(uncovered: bool = False, blind: bool = False) -> str:
@@ -111,6 +201,7 @@ class Renderer:
         from defeasible.domain.definitions import Literal
         from defeasible.domain.definitions import Rule
         from defeasible.domain.definitions import Program
+        from defeasible.domain.definitions import Structure
 
         if type(obj) in [bool, int, float, str]:
             return cls.render_term(obj, uncovered, blind)
@@ -126,6 +217,9 @@ class Renderer:
 
         elif type(obj) is Program:
             return cls.render_program(obj, uncovered, blind)
+
+        elif type(obj) is Structure:
+            return cls.render_structure(obj, uncovered, blind)
 
         else:
             raise UncoveredClassException("Can't render a '%s'" % type(obj).__name__)
@@ -244,3 +338,19 @@ class Renderer:
             defeasibles = cls.render_comment('# Defeasible knowledge') + '\n' + defeasibles
 
         return '\n\n'.join(part for part in [stricts, facts, defeasibles] if part)
+
+    @classmethod
+    def render_structure(cls, structure: 'Structure', uncovered: bool = False, blind: bool = False) -> str:
+
+        content = cls.lang(uncovered, blind)
+        if not structure.argument:
+            content += cls.empty(uncovered, blind)
+        else:
+            content += cls.lcur(uncovered, blind)
+            content += cls.colon(uncovered, blind).join(cls.render_rule(rule) for rule in structure.argument)
+            content += cls.rcur(uncovered, blind)
+        content += cls.comma(uncovered, blind)
+        content += cls.render_literal(structure.conclusion, uncovered, blind)
+        content += cls.rang(uncovered, blind)
+
+        return content

@@ -11,6 +11,7 @@ VALUE = '%s%s' % (Style.NORMAL, Fore.CYAN)
 TERM = '%s%s' % (Style.NORMAL, Fore.GREEN)
 PUNCTUATION = '%s%s' % (Style.DIM, Fore.LIGHTWHITE_EX)
 
+ARGUMENTATION = '%s%s' % (Style.NORMAL, Fore.MAGENTA)
 UNCOVERED = '%s%s' % (Style.NORMAL, Fore.LIGHTRED_EX)
 
 STRICT = '%s%s' % (Style.NORMAL, Fore.GREEN)

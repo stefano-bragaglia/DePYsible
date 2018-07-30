@@ -326,7 +326,7 @@ class Program:
 
         return self._ground
 
-    def get_variable_program(self) -> 'Program':
+    def get_parent_program(self) -> 'Program':
         if self._parent:
             return self._parent
 
@@ -458,11 +458,6 @@ def get_arguments(literal: Literal, strict: Set[Rule], defeasible: Set[Rule]) ->
                         break
                 if adding:
                     arguments.add(current)
-                # if not any(argument.is_strict() or argument.is_substructure(current) for argument in arguments):
-                #     arguments.add(current)
-
-    if not arguments:
-        return None
 
     return arguments
 
