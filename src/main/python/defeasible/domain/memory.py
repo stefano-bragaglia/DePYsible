@@ -14,8 +14,6 @@ class NotGroundLiteralException(Exception):
 
 class Memory:
     def __init__(self, program: 'Program'):
-        from defeasible.domain.definitions import RuleType
-
         self._facts = set()
         self._stricts = dict()
         self._defeasibles = dict()
@@ -25,6 +23,8 @@ class Memory:
             self._defeasibles.setdefault(rule.head, set()).add(rule)
             if rule.type == RuleType.STRICT:
                 self._stricts.setdefault(rule.head, set()).add(rule)
+        self._strict_derivations = {}
+        self._defeasibles_derivations = {}
 
     def derive(self, literal: 'Literal', type: RuleType = RuleType.DEFEASIBLE) -> Optional[List[Derivation]]:
         if not literal.is_ground():
@@ -35,6 +35,12 @@ class Memory:
 
         if literal not in (self._defeasibles if type is RuleType.DEFEASIBLE else self._stricts):
             return None
+
+        if type == RuleType.DEFEASIBLE and literal in self._defeasibles_derivations:
+            return self._defeasibles_derivations[literal]
+
+        if type == RuleType.STRICT and literal in self._strict_derivations:
+            return self._strict_derivations[literal]
 
         results = []
         for rule in (self._defeasibles if type is RuleType.DEFEASIBLE else self._stricts)[literal]:
@@ -59,6 +65,11 @@ class Memory:
                     if rule.head not in derivation:
                         derivation.append(rule.head)
                     results.append(derivation)
+
+        if type == RuleType.DEFEASIBLE:
+            self._defeasibles_derivations[literal] = results
+        else:
+            self._strict_derivations[literal] = results
 
         return results
 
@@ -103,6 +114,19 @@ if __name__ == '__main__':
     for literal in sorted(p.as_literals()):
         print(Renderer.render(literal))
         derivations = m.derive(literal)
+        if derivations is None:
+            print('\t', 'impossible')
+        elif not derivations:
+            print('\t', 'empty')
+        else:
+            for derivation in derivations:
+                print('\t', ', '.join(Renderer.render(lit) for lit in derivation))
+        print()
+    print('-' * 120)
+
+    for literal in sorted(p.as_literals()):
+        print(Renderer.render(literal))
+        derivations = m.derive(literal, type=RuleType.STRICT)
         if derivations is None:
             print('\t', 'impossible')
         elif not derivations:

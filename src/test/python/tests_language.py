@@ -92,7 +92,43 @@ class TestLanguage(TestCase):
             [Literal.parse('h'), Literal.parse('d'), Literal.parse('f'), Literal.parse('e'),
              Literal.parse('g'), Literal.parse('b'), Literal.parse('c'), Literal.parse('a')])
 
-    def test__derive__chicken__0(self):
+    def test__derive__bird_tina__defeasibly(self):
+        program = Program.parse("""
+            bird(X) <- chicken(X).
+            bird(X) <- penguin(X).
+            ~flies(X) <- penguin(X).
+            chicken(tina).
+            penguin(tweety).
+            scared(tina).
+            flies(X) -< bird(X).
+            flies(X) -< chicken(X), scared(X).
+            nests_in_trees(X) -< flies(X).
+            ~flies(X) -< chicken(X).
+        """)
+        memory = Memory(program)
+
+        assert_that(memory.derive(Literal.parse('bird(tina)'), RuleType.DEFEASIBLE)) \
+            .contains_only([Literal.parse('chicken(tina)'), Literal.parse('bird(tina)')])
+
+    def test__derive__bird_tina__strictly(self):
+        program = Program.parse("""
+            bird(X) <- chicken(X).
+            bird(X) <- penguin(X).
+            ~flies(X) <- penguin(X).
+            chicken(tina).
+            penguin(tweety).
+            scared(tina).
+            flies(X) -< bird(X).
+            flies(X) -< chicken(X), scared(X).
+            nests_in_trees(X) -< flies(X).
+            ~flies(X) -< chicken(X).
+        """)
+        memory = Memory(program)
+
+        assert_that(memory.derive(Literal.parse('bird(tina)'), RuleType.STRICT)) \
+            .contains_only([Literal.parse('chicken(tina)'), Literal.parse('bird(tina)')])
+
+    def test__derive__flies_tina__defeasibly(self):
         program = Program.parse("""
             bird(X) <- chicken(X).
             bird(X) <- penguin(X).
@@ -112,7 +148,58 @@ class TestLanguage(TestCase):
             [Literal.parse('chicken(tina)'), Literal.parse('bird(tina)'), Literal.parse('flies(tina)')],
             [Literal.parse('chicken(tina)'), Literal.parse('scared(tina)'), Literal.parse('flies(tina)')])
 
-    def test__derive__chicken__1(self):
+    def test__derive__flies_tina__strictly(self):
+        program = Program.parse("""
+            bird(X) <- chicken(X).
+            bird(X) <- penguin(X).
+            ~flies(X) <- penguin(X).
+            chicken(tina).
+            penguin(tweety).
+            scared(tina).
+            flies(X) -< bird(X).
+            flies(X) -< chicken(X), scared(X).
+            nests_in_trees(X) -< flies(X).
+            ~flies(X) -< chicken(X).
+        """)
+        memory = Memory(program)
+
+        assert_that(memory.derive(Literal.parse('flies(tina)'), RuleType.STRICT)).is_none()
+
+    def test__derive__not_bird_tina__defeasibly(self):
+        program = Program.parse("""
+            bird(X) <- chicken(X).
+            bird(X) <- penguin(X).
+            ~flies(X) <- penguin(X).
+            chicken(tina).
+            penguin(tweety).
+            scared(tina).
+            flies(X) -< bird(X).
+            flies(X) -< chicken(X), scared(X).
+            nests_in_trees(X) -< flies(X).
+            ~flies(X) -< chicken(X).
+        """)
+        memory = Memory(program)
+
+        assert_that(memory.derive(Literal.parse('~bird(tina)'), RuleType.DEFEASIBLE)).is_none()
+
+    def test__derive__not_bird_tina__strictly(self):
+        program = Program.parse("""
+            bird(X) <- chicken(X).
+            bird(X) <- penguin(X).
+            ~flies(X) <- penguin(X).
+            chicken(tina).
+            penguin(tweety).
+            scared(tina).
+            flies(X) -< bird(X).
+            flies(X) -< chicken(X), scared(X).
+            nests_in_trees(X) -< flies(X).
+            ~flies(X) -< chicken(X).
+        """)
+        memory = Memory(program)
+
+        assert_that(memory.derive(Literal.parse('~bird(tina)'), RuleType.STRICT)).is_none()
+
+    def test__derive__not_flies_tina__defeasibly(self):
         program = Program.parse("""
             bird(X) <- chicken(X).
             bird(X) <- penguin(X).
@@ -130,24 +217,7 @@ class TestLanguage(TestCase):
         assert_that(memory.derive(Literal.parse('~flies(tina)'), RuleType.DEFEASIBLE)) \
             .contains_only([Literal.parse('chicken(tina)'), Literal.parse('~flies(tina)')])
 
-    def test__derive__chicken__2(self):
-        program = Program.parse("""
-            bird(X) <- chicken(X).
-            bird(X) <- penguin(X).
-            ~flies(X) <- penguin(X).
-            chicken(tina).
-            penguin(tweety).
-            scared(tina).
-            flies(X) -< bird(X).
-            flies(X) -< chicken(X), scared(X).
-            nests_in_trees(X) -< flies(X).
-            ~flies(X) -< chicken(X).
-        """)
-        memory = Memory(program)
-
-        assert_that(memory.derive(Literal.parse('flies(tina)'), RuleType.STRICT)).is_none()
-
-    def test__derive__chicken__3(self):
+    def test__derive__not_flies_tina__strictly(self):
         program = Program.parse("""
             bird(X) <- chicken(X).
             bird(X) <- penguin(X).
