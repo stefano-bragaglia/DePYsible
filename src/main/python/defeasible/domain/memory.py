@@ -11,6 +11,8 @@ Derivation = List['Literal']
 class NotGroundLiteralException(Exception):
     pass
 
+# TODO store rules instead of head literals for derivations, so that it's easier to create arguments?
+
 
 class Memory:
     def __init__(self, program: 'Program'):
