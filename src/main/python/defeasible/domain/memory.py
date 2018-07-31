@@ -1,5 +1,5 @@
 from collections import namedtuple
-from typing import List, Optional, Set
+from typing import Dict, List, Optional, Set
 
 from defeasible.domain.definitions import RuleType
 
@@ -17,7 +17,8 @@ class Memory:
         self._facts = set()
         self._stricts = dict()
         self._defeasibles = dict()
-        for rule in program.get_ground_program().rules:
+        self._program = program.get_ground_program()
+        for rule in self._program.rules:
             if rule.is_fact():
                 self._facts.add(rule)
             self._defeasibles.setdefault(rule.head, set()).add(rule)
@@ -25,15 +26,10 @@ class Memory:
                 self._stricts.setdefault(rule.head, set()).add(rule)
         self._strict_derivations = {}
         self._defeasibles_derivations = {}
+        self._contradictory = None
 
     def derive(self, literal: 'Literal', type: RuleType = RuleType.DEFEASIBLE) -> Optional[List[Derivation]]:
-        if not literal.is_ground():
-            raise NotGroundLiteralException("Ground literal expected, but '%s' found" % literal)
-
         if not self._facts:
-            return None
-
-        if literal not in (self._defeasibles if type is RuleType.DEFEASIBLE else self._stricts):
             return None
 
         if type == RuleType.DEFEASIBLE and literal in self._defeasibles_derivations:
@@ -42,36 +38,57 @@ class Memory:
         if type == RuleType.STRICT and literal in self._strict_derivations:
             return self._strict_derivations[literal]
 
-        results = []
-        for rule in (self._defeasibles if type is RuleType.DEFEASIBLE else self._stricts)[literal]:
-            complete = True
-            derivations = [[]]
-            for body in rule.body:
-                partials = self.derive(body)
-                if partials is None:
-                    complete = False
-                    break
-
-                temporary = []
-                for derivation in derivations:
-                    for partial in partials:
-                        current = combine(derivation, partial)
-                        if current and current not in temporary:
-                            temporary.append(current)
-                derivations = temporary
-
-            if complete:
-                for derivation in derivations:
-                    if rule.head not in derivation:
-                        derivation.append(rule.head)
-                    results.append(derivation)
-
+        results = get_derivations(literal, self._defeasibles if type == RuleType.DEFEASIBLE else self._stricts)
         if type == RuleType.DEFEASIBLE:
             self._defeasibles_derivations[literal] = results
         else:
             self._strict_derivations[literal] = results
 
         return results
+
+    def is_contradictory(self, type: RuleType = RuleType.DEFEASIBLE) -> bool:
+        if self._contradictory is None:
+            self._contradictory = False
+            derivations = self._defeasibles_derivations if type == RuleType.DEFEASIBLE else self._strict_derivations
+            for literal in self._program.as_literals():
+                if literal in derivations and literal.get_complement() in derivations:
+                    self._contradictory = True
+
+        return self._contradictory
+
+
+def get_derivations(literal: 'Literal', index: Dict['Literal', Set['Rule']]) -> Optional[List[Derivation]]:
+    if not literal.is_ground():
+        raise NotGroundLiteralException("Ground literal expected, but '%s' found" % literal)
+
+    if literal not in index:
+        return None
+
+    derivations = []
+    for rule in index[literal]:
+        complete = True
+        partials = [[]]
+        for body in rule.body:
+            completions = get_derivations(body, index)
+            if completions is None:
+                complete = False
+                break
+
+            temporary = []
+            for partial in partials:
+                for completion in completions:
+                    current = combine(partial, completion)
+                    if current and current not in temporary:
+                        temporary.append(current)
+            partials = temporary
+
+        if complete:
+            for partial in partials:
+                if rule.head not in partial:
+                    partial.append(rule.head)
+                derivations.append(partial)
+
+    return derivations
 
 
 def combine(left: list, right: list) -> list:
