@@ -233,3 +233,37 @@ class TestLanguage(TestCase):
         memory = Memory(program)
 
         assert_that(memory.derive(Literal.parse('~flies(tina)'), RuleType.STRICT)).is_none()
+
+    def test__is_contradictory__defeasibly(self):
+        program = Program.parse("""
+            bird(X) <- chicken(X).
+            bird(X) <- penguin(X).
+            ~flies(X) <- penguin(X).
+            chicken(tina).
+            penguin(tweety).
+            scared(tina).
+            flies(X) -< bird(X).
+            flies(X) -< chicken(X), scared(X).
+            nests_in_trees(X) -< flies(X).
+            ~flies(X) -< chicken(X).
+        """)
+        memory = Memory(program)
+
+        assert_that(memory.is_contradictory(RuleType.DEFEASIBLE)).is_true()
+
+    def test__is_contradictory__strictly(self):
+        program = Program.parse("""
+            bird(X) <- chicken(X).
+            bird(X) <- penguin(X).
+            ~flies(X) <- penguin(X).
+            chicken(tina).
+            penguin(tweety).
+            scared(tina).
+            flies(X) -< bird(X).
+            flies(X) -< chicken(X), scared(X).
+            nests_in_trees(X) -< flies(X).
+            ~flies(X) -< chicken(X).
+        """)
+        memory = Memory(program)
+
+        assert_that(memory.is_contradictory(RuleType.STRICT)).is_false()

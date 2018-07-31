@@ -25,36 +25,47 @@ class Memory:
             if rule.type == RuleType.STRICT:
                 self._stricts.setdefault(rule.head, set()).add(rule)
         self._strict_derivations = {}
-        self._defeasibles_derivations = {}
-        self._contradictory = None
+        self._defeasible_derivations = {}
+        self._strictly_contradictory = None
+        self._defeasibly_contradictory = None
 
     def derive(self, literal: 'Literal', type: RuleType = RuleType.DEFEASIBLE) -> Optional[List[Derivation]]:
         if not self._facts:
             return None
 
-        if type == RuleType.DEFEASIBLE and literal in self._defeasibles_derivations:
-            return self._defeasibles_derivations[literal]
+        if type == RuleType.DEFEASIBLE and literal in self._defeasible_derivations:
+            return self._defeasible_derivations[literal]
 
         if type == RuleType.STRICT and literal in self._strict_derivations:
             return self._strict_derivations[literal]
 
         results = get_derivations(literal, self._defeasibles if type == RuleType.DEFEASIBLE else self._stricts)
         if type == RuleType.DEFEASIBLE:
-            self._defeasibles_derivations[literal] = results
+            self._defeasible_derivations[literal] = results
         else:
             self._strict_derivations[literal] = results
 
         return results
 
     def is_contradictory(self, type: RuleType = RuleType.DEFEASIBLE) -> bool:
-        if self._contradictory is None:
-            self._contradictory = False
-            derivations = self._defeasibles_derivations if type == RuleType.DEFEASIBLE else self._strict_derivations
-            for literal in self._program.as_literals():
-                if literal in derivations and literal.get_complement() in derivations:
-                    self._contradictory = True
+        if type == RuleType.DEFEASIBLE and self._defeasibly_contradictory is not None:
+            return self._defeasibly_contradictory
 
-        return self._contradictory
+        if type == RuleType.STRICT and self._strictly_contradictory is not None:
+            return self._strictly_contradictory
+
+        contradictory = False
+        for literal in self._program.as_literals():
+            if self.derive(literal, type) and self.derive(literal.get_complement(), type):
+                contradictory = True
+                break
+
+        if type == RuleType.DEFEASIBLE:
+            self._defeasibly_contradictory = contradictory
+        else:
+            self._strictly_contradictory = contradictory
+
+        return contradictory
 
 
 def get_derivations(literal: 'Literal', index: Dict['Literal', Set['Rule']]) -> Optional[List[Derivation]]:
