@@ -49,10 +49,7 @@ class Memory:
                 temporary = []
                 for derivation in derivations:
                     for partial in partials:
-                        current = [*derivation]
-                        for value in partial:
-                            if value not in current:
-                                current.append(value)
+                        current = combine(derivation, partial)
                         if current and current not in temporary:
                             temporary.append(current)
                 derivations = temporary
@@ -64,6 +61,22 @@ class Memory:
                     results.append(derivation)
 
         return results
+
+
+def combine(left: list, right: list) -> list:
+    result = []
+    size = max(len(left), len(right))
+    for i in range(-size, 0):
+        for lst in [left, right]:
+            try:
+                item = lst[i]
+            except IndexError:
+                pass
+            else:
+                if item not in result:
+                    result.append(item)
+
+    return result
 
 
 if __name__ == '__main__':

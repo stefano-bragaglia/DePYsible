@@ -89,8 +89,8 @@ class TestLanguage(TestCase):
             .contains_only(
             [Literal.parse('f'), Literal.parse('g'), Literal.parse('c'), Literal.parse('b'),
              Literal.parse('a')],
-            [Literal.parse('h'), Literal.parse('d'), Literal.parse('e'), Literal.parse('b'),
-             Literal.parse('f'), Literal.parse('g'), Literal.parse('c'), Literal.parse('a')])
+            [Literal.parse('h'), Literal.parse('d'), Literal.parse('f'), Literal.parse('e'),
+             Literal.parse('g'), Literal.parse('b'), Literal.parse('c'), Literal.parse('a')])
 
     def test__derive__chicken__0(self):
         program = Program.parse("""
