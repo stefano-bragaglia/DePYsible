@@ -1,37 +1,74 @@
 from collections import namedtuple
 from typing import Dict, List, Optional, Set
 
-from defeasible.domain.definitions import RuleType
+from dataclasses import dataclass
+
+from defeasible.domain.definitions import RuleType, Structure
 
 OrderedLiteral = namedtuple('OrderedLiteral', 'position literal')
 Trace = Set[OrderedLiteral]
-Derivation = List['Literal']
+Derivation = List['Rule']
+
+
+@dataclass(init=True, repr=False, eq=True, order=True)
+class Derivation:
+    rules: List['Rule']
+    _type: RuleType = None
+
+    @property
+    def type(self) -> RuleType:
+        if self._type is not None:
+            return self._type
+
+        self._type = RuleType.STRICT
+        for rule in self.rules:
+            if rule.type == RuleType.DEFEASIBLE:
+                self._type = RuleType.DEFEASIBLE
+
+        return self._type
+
+    @property
+    def conclusion(self) -> 'Literal':
+        return self.rules[-1].head
+
+    def __hash__(self) -> int:
+        return hash(repr(self))
+
+    def __repr__(self) -> str:
+        if len(self.rules) == 0:
+            return '∅'
+
+        if len(self.rules) == 1:
+            return repr(self.rules[0].head)
+
+        return '%s = %s' % (', '.join(repr(rule.head) for rule in self.rules[:-1]), repr(self.rules[-1].head))
+
+    def get_argument(self) -> 'Structure':
+        return Structure(self.rules[-1].head, {rule for rule in self.rules if rule.type == RuleType.DEFEASIBLE})
 
 
 class NotGroundLiteralException(Exception):
     pass
-
-# TODO store rules instead of head literals for derivations, so that it's easier to create arguments?
 
 
 class Memory:
     def __init__(self, program: 'Program'):
         self._facts = set()
         self._stricts = dict()
-        self._defeasibles = dict()
+        self._rules = dict()
         self._program = program.get_ground_program()
         for rule in self._program.rules:
             if rule.is_fact():
                 self._facts.add(rule)
-            self._defeasibles.setdefault(rule.head, set()).add(rule)
+            self._rules.setdefault(rule.head, set()).add(rule)
             if rule.type == RuleType.STRICT:
                 self._stricts.setdefault(rule.head, set()).add(rule)
-        self._strict_derivations = {}
         self._defeasible_derivations = {}
-        self._strictly_contradictory = None
+        self._strict_derivations = {}
         self._defeasibly_contradictory = None
+        self._strictly_contradictory = None
 
-    def derive(self, literal: 'Literal', type: RuleType = RuleType.DEFEASIBLE) -> Optional[List[Derivation]]:
+    def get_derivation(self, literal: 'Literal', type: RuleType = RuleType.DEFEASIBLE) -> Optional[Set[Derivation]]:
         if not self._facts:
             return None
 
@@ -41,13 +78,20 @@ class Memory:
         if type == RuleType.STRICT and literal in self._strict_derivations:
             return self._strict_derivations[literal]
 
-        results = get_derivations(literal, self._defeasibles if type == RuleType.DEFEASIBLE else self._stricts)
-        if type == RuleType.DEFEASIBLE:
-            self._defeasible_derivations[literal] = results
-        else:
-            self._strict_derivations[literal] = results
+        rules = self._rules if type == RuleType.DEFEASIBLE else self._stricts
+        sets_of_rules = get_supporting_sets_of_rules(literal, rules)
+        if not sets_of_rules:
+            if type == RuleType.DEFEASIBLE:
+                return self._defeasible_derivations.setdefault(literal, None)
 
-        return results
+            else:
+                return self._strict_derivations.setdefault(literal, None)
+
+        derivations = {Derivation(set_of_rules) for set_of_rules in sets_of_rules if set_of_rules}
+        if type == RuleType.DEFEASIBLE:
+            return self._defeasible_derivations.setdefault(literal, derivations)
+        else:
+            return self._strict_derivations.setdefault(literal, derivations)
 
     def is_contradictory(self, type: RuleType = RuleType.DEFEASIBLE) -> bool:
         if type == RuleType.DEFEASIBLE and self._defeasibly_contradictory is not None:
@@ -58,7 +102,7 @@ class Memory:
 
         contradictory = False
         for literal in self._program.as_literals():
-            if self.derive(literal, type) and self.derive(literal.get_complement(), type):
+            if self.get_derivation(literal, type) and self.get_derivation(literal.get_complement(), type):
                 contradictory = True
                 break
 
@@ -70,19 +114,19 @@ class Memory:
         return contradictory
 
 
-def get_derivations(literal: 'Literal', index: Dict['Literal', Set['Rule']]) -> Optional[List[Derivation]]:
+def get_supporting_sets_of_rules(literal: 'Literal', index: Dict['Literal', Set['Rule']]) -> Optional[List['Rule']]:
     if not literal.is_ground():
         raise NotGroundLiteralException("Ground literal expected, but '%s' found" % literal)
 
     if literal not in index:
         return None
 
-    derivations = []
+    rules = []
     for rule in index[literal]:
         complete = True
         partials = [[]]
         for body in rule.body:
-            completions = get_derivations(body, index)
+            completions = get_supporting_sets_of_rules(body, index)
             if completions is None:
                 complete = False
                 break
@@ -97,11 +141,11 @@ def get_derivations(literal: 'Literal', index: Dict['Literal', Set['Rule']]) -> 
 
         if complete:
             for partial in partials:
-                if rule.head not in partial:
-                    partial.append(rule.head)
-                derivations.append(partial)
+                if not any(rule.head == current.head for current in partial):
+                    partial.append(rule)
+                rules.append(partial)
 
-    return derivations
+    return rules
 
 
 def combine(left: list, right: list) -> list:
@@ -121,7 +165,6 @@ def combine(left: list, right: list) -> list:
 
 
 if __name__ == '__main__':
-    from defeasible.domain.rendering import Renderer
     from defeasible.domain.definitions import Program
 
     p = Program.parse("""
@@ -138,33 +181,26 @@ if __name__ == '__main__':
     """)
     m = Memory(p)
     p = p.get_ground_program()
-    print(Renderer.render(p))
+    print(p)
     print()
-
-    for literal in sorted(p.as_literals()):
-        print(Renderer.render(literal))
-        derivations = m.derive(literal)
-        if derivations is None:
-            print('\t', 'impossible')
-        elif not derivations:
-            print('\t', 'empty')
-        else:
-            for derivation in derivations:
-                print('\t', ', '.join(Renderer.render(lit) for lit in derivation))
-        print()
     print('-' * 120)
 
     for literal in sorted(p.as_literals()):
-        print(Renderer.render(literal))
-        derivations = m.derive(literal, type=RuleType.STRICT)
+        print(literal)
+        derivations = m.get_derivation(literal)
         if derivations is None:
             print('\t', 'impossible')
         elif not derivations:
             print('\t', 'empty')
         else:
-            for derivation in derivations:
-                print('\t', ', '.join(Renderer.render(lit) for lit in derivation))
+            for derivation in sorted(derivations):
+                print('\t', derivation)
+                print('\t\t', derivation.get_argument())
         print()
+    print('-' * 120)
+
+    print('Contradictory?', m.is_contradictory())
+    print('Contradictory?', m.is_contradictory(RuleType.STRICT))
 
     # p = p.get_ground_program()
     # for literal in sorted(p.as_literals()):
