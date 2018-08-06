@@ -123,6 +123,9 @@ class Literal:
     def get_complement(self):
         return Literal(not self.negated, self.atom)
 
+    def as_fact(self) -> 'Rule':
+        return Rule(self, RuleType.STRICT, [])
+
     def get_derivation(self):
         raise NotImplemented
 
@@ -178,6 +181,9 @@ class Rule:
 
         return True
 
+    def as_literals(self) -> Set[Literal]:
+        return {self.head, *self.body}
+
 
 @dataclass(init=True, repr=False, eq=True, order=True)
 class Structure:
@@ -200,7 +206,41 @@ class Structure:
         return all(rule in other.argument for rule in self.argument)
 
 
-Derivation = List[Literal]
+@dataclass(init=True, repr=False, eq=True, order=True)
+class Derivation:
+    rules: List[Rule]
+    _type: RuleType = None
+
+    @property
+    def type(self) -> RuleType:
+        if self._type is not None:
+            return self._type
+
+        self._type = RuleType.STRICT
+        for rule in self.rules:
+            if rule.type == RuleType.DEFEASIBLE:
+                self._type = RuleType.DEFEASIBLE
+
+        return self._type
+
+    @property
+    def conclusion(self) -> Literal:
+        return self.rules[-1].head
+
+    def __hash__(self) -> int:
+        return hash(repr(self))
+
+    def __repr__(self) -> str:
+        if len(self.rules) == 0:
+            return '∅'
+
+        if len(self.rules) == 1:
+            return repr(self.rules[0].head)
+
+        return '%s = %s' % (', '.join(repr(rule.head) for rule in self.rules[:-1]), repr(self.rules[-1].head))
+
+    def get_argument(self) -> Structure:
+        return Structure(self.rules[-1].head, {rule for rule in self.rules if rule.type == RuleType.DEFEASIBLE})
 
 
 @dataclass(init=True, repr=False, eq=True, order=True)

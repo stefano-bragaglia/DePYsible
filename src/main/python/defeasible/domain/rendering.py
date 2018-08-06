@@ -195,18 +195,41 @@ class Renderer:
         else:
             return '%s -< %s' % (DEFEASIBLE, RESET)
 
+    @staticmethod
+    def strictly(uncovered: bool = False, blind: bool = False) -> str:
+        from defeasible.domain.theme import STRICT
+        from defeasible.domain.theme import RESET
+
+        if blind:
+            return ' |- '
+
+        else:
+            return '%s |- %s' % (STRICT, RESET)
+
+    @staticmethod
+    def defeasibly(uncovered: bool = False, blind: bool = False) -> str:
+        from defeasible.domain.theme import DEFEASIBLE
+        from defeasible.domain.theme import RESET
+
+        if blind:
+            return ' |~ '
+
+        else:
+            return '%s |~ %s' % (DEFEASIBLE, RESET)
+
     @classmethod
     def render(cls, obj: Any, uncovered: bool = False, blind: bool = False) -> str:
         from defeasible.domain.definitions import Atom
         from defeasible.domain.definitions import Literal
         from defeasible.domain.definitions import Rule
         from defeasible.domain.definitions import Program
+        from defeasible.domain.definitions import Derivation
         from defeasible.domain.definitions import Structure
 
         if type(obj) in [bool, int, float, str]:
             return cls.render_term(obj, uncovered, blind)
 
-        if type(obj) is Atom:
+        elif type(obj) is Atom:
             return cls.render_atom(obj, uncovered, blind)
 
         elif type(obj) is Literal:
@@ -217,6 +240,9 @@ class Renderer:
 
         elif type(obj) is Program:
             return cls.render_program(obj, uncovered, blind)
+
+        elif type(obj) is Derivation:
+            return cls.render_derivation(obj, uncovered, blind)
 
         elif type(obj) is Structure:
             return cls.render_structure(obj, uncovered, blind)
@@ -338,6 +364,23 @@ class Renderer:
             defeasibles = cls.render_comment('# Defeasible knowledge') + '\n' + defeasibles
 
         return '\n\n'.join(part for part in [stricts, facts, defeasibles] if part)
+
+    @classmethod
+    def render_derivation(cls, derivation: 'Derivation', uncovered: bool = False, blind: bool = False) -> str:
+        from defeasible.domain.definitions import RuleType
+
+        if len(derivation.rules) == 0:
+            return cls.empty(uncovered, blind)
+
+        if len(derivation.rules) == 1:
+            return repr(derivation.rules[0].head)
+
+        sequence = ', '.join(cls.render_literal(rule.head, uncovered, blind) for rule in derivation.rules[:-1])
+        conclusion = cls.render_literal(derivation.rules[-1].head, uncovered, blind)
+        if derivation.type == RuleType.DEFEASIBLE:
+            return '%s %s %s' % (sequence, cls.defeasibly(uncovered, blind), conclusion)
+
+        return '%s %s %s' % (sequence, cls.strictly(uncovered, blind), conclusion)
 
     @classmethod
     def render_structure(cls, structure: 'Structure', uncovered: bool = False, blind: bool = False) -> str:

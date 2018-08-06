@@ -3,52 +3,97 @@ from typing import Dict, List, Optional, Set
 
 from dataclasses import dataclass
 
-from defeasible.domain.definitions import RuleType, Structure
+from defeasible.domain.definitions import RuleType
 
 OrderedLiteral = namedtuple('OrderedLiteral', 'position literal')
 Trace = Set[OrderedLiteral]
-Derivation = List['Rule']
-
-
-@dataclass(init=True, repr=False, eq=True, order=True)
-class Derivation:
-    rules: List['Rule']
-    _type: RuleType = None
-
-    @property
-    def type(self) -> RuleType:
-        if self._type is not None:
-            return self._type
-
-        self._type = RuleType.STRICT
-        for rule in self.rules:
-            if rule.type == RuleType.DEFEASIBLE:
-                self._type = RuleType.DEFEASIBLE
-
-        return self._type
-
-    @property
-    def conclusion(self) -> 'Literal':
-        return self.rules[-1].head
-
-    def __hash__(self) -> int:
-        return hash(repr(self))
-
-    def __repr__(self) -> str:
-        if len(self.rules) == 0:
-            return '∅'
-
-        if len(self.rules) == 1:
-            return repr(self.rules[0].head)
-
-        return '%s = %s' % (', '.join(repr(rule.head) for rule in self.rules[:-1]), repr(self.rules[-1].head))
-
-    def get_argument(self) -> 'Structure':
-        return Structure(self.rules[-1].head, {rule for rule in self.rules if rule.type == RuleType.DEFEASIBLE})
 
 
 class NotGroundLiteralException(Exception):
     pass
+
+
+class ContradictoryStrictSetException(Exception):
+    pass
+
+
+@dataclass(init=True, repr=False, eq=True, order=True)
+class RuleSet:
+    rules: Set['Rule']
+    facts: Set['Literal']
+    literals: Set['Literal']
+    index: Dict['Literal', Set['Rule']]
+    type: RuleType
+
+    def __init__(self, rules: Set['Rule']):
+        self.rules = rules
+        self.index = {}
+        self.facts = set()
+        self.literals = set()
+        self.type = RuleType.STRICT
+        for rule in rules:
+            if rule.is_fact():
+                self.facts.add(rule)
+            if rule.type == RuleType.DEFEASIBLE and self.type == RuleType.STRICT:
+                self.type = RuleType.DEFEASIBLE
+            self.index.setdefault(rule.head).add(rule)
+            self.literals.add(rule.head)
+
+    def get_explanations(self, literal: 'Literal') -> Optional[List['Rule']]:
+        explanations = []
+        for rule in self.index[literal]:
+            partials = [[]]
+
+            complete = True
+            for body in rule.body:
+                completions = self.get_explanations(body)
+                if completions is None:
+                    complete = False
+                    break
+
+                temporary = []
+                for partial in partials:
+                    for completion in completions:
+                        size = min(len(partial), len(completion))
+                        current = [i for c in zip(partial, completion) for i in c] + partial[size:] + completion[size:]
+                        if current and current not in temporary:
+                            temporary.append(current)
+                partials = temporary
+
+    def get_explanation(self):
+        rules = []
+        for rule in self._rules[literal]:
+            partials = [[]]
+
+            complete = True
+            for body in rule.body:
+                completions = get_supporting_sets_of_rules(body, self._rules)
+                if completions is None:
+                    complete = False
+                    break
+
+                temporary = []
+                for partial in partials:
+                    for completion in completions:
+                        current = combine(partial, completion)
+                        if current and current not in temporary:
+                            temporary.append(current)
+                partials = temporary
+
+            if complete:
+                for partial in partials:
+                    if not any(rule.head == current.head for current in partial):
+                        partial.append(rule)
+                    rules.append(partial)
+
+        return rules
+
+    def is_contradictory(self):
+        for literal in self.literals:
+            if self.get_explanation(literal) and self.get_explanation(literal.get_complement()):
+                return True
+
+        return False
 
 
 class Memory:
@@ -68,7 +113,9 @@ class Memory:
         self._defeasibly_contradictory = None
         self._strictly_contradictory = None
 
-    def get_derivation(self, literal: 'Literal', type: RuleType = RuleType.DEFEASIBLE) -> Optional[Set[Derivation]]:
+    def get_derivation(self, literal: 'Literal', type: RuleType = RuleType.DEFEASIBLE) -> Optional[Set['Derivation']]:
+        from defeasible.domain.definitions import Derivation
+
         if not self._facts:
             return None
 
@@ -149,19 +196,14 @@ def get_supporting_sets_of_rules(literal: 'Literal', index: Dict['Literal', Set[
 
 
 def combine(left: list, right: list) -> list:
-    result = []
-    size = max(len(left), len(right))
-    for i in range(-size, 0):
-        for lst in [left, right]:
-            try:
-                item = lst[i]
-            except IndexError:
-                pass
-            else:
-                if item not in result:
-                    result.append(item)
+    size = min(len(left), len(right))
+    return [item for couple in zip(left, right) for item in couple] + left[size:] + right[size:]
 
-    return result
+
+def is_contradictory(rules: Set['Rule']) -> bool:
+    literals = set()
+    for rule in rules:
+        literals.update(rule.as_literals())
 
 
 if __name__ == '__main__':

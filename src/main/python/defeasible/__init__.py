@@ -4,6 +4,7 @@ import subprocess
 
 from colorama import Fore, Style
 
+from defeasible.domain.definitions import Literal
 from defeasible.domain.definitions import Program
 from defeasible.domain.rendering import Renderer
 
@@ -60,6 +61,10 @@ def main(blind: bool = False):
                 filename = tmp_filename
 
         else:
+            # match = re.search(r'\s*derive\s*\(\s*(.+)\s*\)\s*', command)
+            # if match:
+            #     literal = Literal.parse(match.group(1))
+            # else:
             rules = set(program.rules)
             try:
                 rules.update(Program.parse(command).rules)
