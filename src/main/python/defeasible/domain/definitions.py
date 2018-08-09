@@ -143,6 +143,7 @@ class Rule:
     head: Literal
     type: RuleType
     body: List[Literal]
+    salience: int = 0
 
     @staticmethod
     def parse(content: str) -> 'Rule':
