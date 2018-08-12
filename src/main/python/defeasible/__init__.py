@@ -152,25 +152,21 @@ def show_copyright(blind: bool = False):
 
 def show_help(blind: bool = False):
     if blind:
-        print(' copyright.  Shows copyright information')
-        print(' credits.    Shows credits information')
-        print(' edit.       Edit current program in external editor')
-        print(' ground.     Makes current program ground (if need be)')
-        print(' halt.       Stops this interpreter\'s session')
-        print(' license.    Shows license')
-        print(' listing.    Lists the content of current program')
-        print(' parent.     Reverts to non-ground program (if available)')
-        print(' reset.      Drop current program')
+        print(' copyright   Shows copyright information')
+        print(' credits     Shows credits information')
+        print(' edit        Edit current program in external editor')
+        print(' halt        Stops this interpreter\'s session')
+        print(' license     Shows license')
+        print(' listing     Lists the content of current program')
+        print(' reset       Drop current program')
 
-    print(' %scopyright.  %sShows copyright information%s' % (Fore.YELLOW, Fore.WHITE, Fore.RESET))
-    print(' %scredits.    %sShows credits information%s' % (Fore.YELLOW, Fore.WHITE, Fore.RESET))
-    print(' %sedit.       %sEdit current program in external editor%s' % (Fore.YELLOW, Fore.WHITE, Fore.RESET))
-    print(' %sground.     %sMakes current program ground (if need be)%s' % (Fore.YELLOW, Fore.WHITE, Fore.RESET))
-    print(' %shalt.       %sStops this session%s' % (Fore.YELLOW, Fore.WHITE, Fore.RESET))
-    print(' %slicense.    %sShows license%s' % (Fore.YELLOW, Fore.WHITE, Fore.RESET))
-    print(' %slisting.    %sLists the content of current program%s' % (Fore.YELLOW, Fore.WHITE, Fore.RESET))
-    print(' %sparent.     %sReverts to non-ground program (if available)%s' % (Fore.YELLOW, Fore.WHITE, Fore.RESET))
-    print(' %sreset.      %sDrop current program%s' % (Fore.YELLOW, Fore.WHITE, Fore.RESET))
+    print(' %scopyright   %sShows copyright information%s' % (Fore.YELLOW, Fore.WHITE, Fore.RESET))
+    print(' %scredits     %sShows credits information%s' % (Fore.YELLOW, Fore.WHITE, Fore.RESET))
+    print(' %sedit        %sEdit current program in external editor%s' % (Fore.YELLOW, Fore.WHITE, Fore.RESET))
+    print(' %shalt        %sStops this session%s' % (Fore.YELLOW, Fore.WHITE, Fore.RESET))
+    print(' %slicense     %sShows license%s' % (Fore.YELLOW, Fore.WHITE, Fore.RESET))
+    print(' %slisting     %sLists the content of current program%s' % (Fore.YELLOW, Fore.WHITE, Fore.RESET))
+    print(' %sreset       %sDrop current program%s' % (Fore.YELLOW, Fore.WHITE, Fore.RESET))
 
 
 def show_license(blind: bool = False):
