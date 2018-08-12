@@ -17,4 +17,6 @@ UNCOVERED = '%s%s' % (Style.NORMAL, Fore.LIGHTRED_EX)
 STRICT = '%s%s' % (Style.NORMAL, Fore.GREEN)
 DEFEASIBLE = '%s%s' % (Style.NORMAL, Fore.YELLOW)
 
+ANSWER= '%s%s' % (Style.NORMAL, Fore.BLUE)
+
 RESET = '%s%s' % (Style.RESET_ALL, Fore.RESET)

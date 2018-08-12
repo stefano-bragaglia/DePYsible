@@ -6,72 +6,81 @@ from colorama import Fore, Style
 
 from defeasible.domain.definitions import Literal
 from defeasible.domain.definitions import Program
+from defeasible.domain.interpretation import Interpreter
 from defeasible.domain.rendering import Renderer
 
 
 def main(blind: bool = False):
     filename = None
     program = Program([])
+    interpreter = Interpreter(program)
 
     show_intro()
     while True:
         command = input(prompt(blind)).strip()
 
-        if command == 'halt.':
+        if command == 'halt':
             break
 
-        elif command == 'credits.':
+        elif command == 'credits':
             show_credits(blind)
 
-        elif command == 'copyright.':
+        elif command == 'copyright':
             show_copyright(blind)
 
-        elif command == 'edit.':
+        elif command == 'edit':
             if not filename:
                 filename = get_filename()
             subprocess.call(['nano', filename])
 
-        elif command == 'ground.':
-            program = program.get_ground_program()
+        # elif command == 'ground.':
+        #     program = program.get_ground_program()
 
-        elif command == 'help.':
+        elif command == 'help':
             show_help(blind)
 
-        elif command == 'license.':
+        elif command == 'license':
             show_license(blind)
 
-        elif command == 'listing.':
+        elif command == 'listing':
             print(Renderer.render(program, blind=blind))
 
-        elif command == 'parent.':
-            program = program.get_variable_program()
+        # elif command == 'parent.':
+        #     program = program.get_variable_program()
 
-        elif command == 'reset.':
+        elif command == 'reset':
             filename = None
             program = Program([])
+            interpreter = Interpreter(program)
 
-        elif re.match(r'\[(.*)\]\.', command):
-            tmp_filename = command[1:-2]
+        elif re.match(r'\[(.*)\]', command):
+            tmp_filename = command[1:-1]
             try:
                 with open(tmp_filename, 'r') as file:
                     program = Program.parse(file.read())
+                    interpreter = Interpreter(program)
             except Exception as e:
                 show_error(str(e), blind)
             else:
                 filename = tmp_filename
 
         else:
-            # match = re.search(r'\s*derive\s*\(\s*(.+)\s*\)\s*', command)
-            # if match:
-            #     literal = Literal.parse(match.group(1))
-            # else:
-            rules = set(program.rules)
             try:
-                rules.update(Program.parse(command).rules)
-            except Exception as e:
-                show_error(str(e), blind)
+                literal = Literal.parse(command)
+            except Exception:
+                rules = set(program.rules)
+                try:
+                    rules.update(Program.parse(command).rules)
+                except Exception as e:
+                    show_error(str(e), blind)
+                else:
+                    program = Program(list(rules))
+                    interpreter = Interpreter(program)
             else:
-                program = Program(list(rules))
+                answer, warrant = interpreter.query(literal)
+                print(Renderer.render(answer, blind=blind))
+                for rule in sorted(warrant):
+                    print('\t', Renderer.render(rule, blind=blind))
 
 
 def get_filename() -> str:

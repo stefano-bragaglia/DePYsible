@@ -2,6 +2,8 @@ import re
 from typing import Any
 from typing import Set
 
+from defeasible.domain.interpretation import Answer
+
 
 class UncoveredClassException(Exception):
     pass
@@ -247,6 +249,9 @@ class Renderer:
         elif type(obj) is Structure:
             return cls.render_structure(obj, uncovered, blind)
 
+        elif type(obj) is Answer:
+            return cls.render_answer(obj, uncovered, blind)
+
         else:
             raise UncoveredClassException("Can't render a '%s'" % type(obj).__name__)
 
@@ -384,7 +389,6 @@ class Renderer:
 
     @classmethod
     def render_structure(cls, structure: 'Structure', uncovered: bool = False, blind: bool = False) -> str:
-
         content = cls.lang(uncovered, blind)
         if not structure.argument:
             content += cls.empty(uncovered, blind)
@@ -397,3 +401,14 @@ class Renderer:
         content += cls.rang(uncovered, blind)
 
         return content
+
+    @classmethod
+    def render_answer(cls, answer: Answer, uncovered: bool = False, blind: bool = False) -> str:
+        from defeasible.domain.theme import ANSWER
+        from defeasible.domain.theme import RESET
+
+        if blind:
+            return answer.name
+
+        else:
+            return '%s%s%s' % (ANSWER, answer.name, RESET)
