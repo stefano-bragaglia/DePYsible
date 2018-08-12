@@ -331,43 +331,47 @@ class Interpreter:
 
     def __init__(self, program: Program):
         self.program = program.get_ground_program()
+        self._defeaters = None
+        self._literals = None
+        self._structures = None
+        self._answers = None
 
     def __repr__(self) -> str:
         return repr(self.program)
 
     def get_defeaters(self) -> Summary:
-        arguments = self.get_structures(RuleType.DEFEASIBLE)
+        if self._defeaters is None:
+            arguments = self.get_structures(RuleType.DEFEASIBLE)
 
-        subarguments = {}
-        for argument in arguments:
-            for subargument in arguments:
-                if subargument.is_subargument_of(argument):
-                    subarguments.setdefault(argument, set()).add(subargument)
-
-        counter_arguments = {}
-        for counter_argument in arguments:
+            subarguments = {}
             for argument in arguments:
-                if counter_argument != argument:
-                    for subargument in subarguments.get(argument, set()):
-                        if counter_argument.is_counter_argument_of(argument, subargument):
-                            counter_arguments.setdefault(argument, {})[counter_argument] = subargument
+                for subargument in arguments:
+                    if subargument.is_subargument_of(argument):
+                        subarguments.setdefault(argument, set()).add(subargument)
 
-        defeaters = {}
-        for argument in counter_arguments:
-            for counter_argument, disagreement in counter_arguments[argument].items():
-                preference = counter_argument.is_preferable_to(disagreement)
-                if preference:
-                    defeaters \
-                        .setdefault(argument, {}) \
-                        .setdefault(DefeaterType.PROPER, {}) \
-                        .setdefault(counter_argument, disagreement)
-                if not preference and not disagreement.is_preferable_to(counter_argument):
-                    defeaters \
-                        .setdefault(argument, {}) \
-                        .setdefault(DefeaterType.BLOCKING, {}) \
-                        .setdefault(counter_argument, disagreement)
+            counter_arguments = {}
+            for counter_argument in arguments:
+                for argument in arguments:
+                    if counter_argument != argument:
+                        for subargument in subarguments.get(argument, set()):
+                            if counter_argument.is_counter_argument_of(argument, subargument):
+                                counter_arguments.setdefault(argument, {})[counter_argument] = subargument
 
-        return defeaters
+            self._defeaters = {}
+            for argument in counter_arguments:
+                for counter_argument, disagreement in counter_arguments[argument].items():
+                    if counter_argument.is_preferable_to(disagreement):
+                        self._defeaters \
+                            .setdefault(argument, {}) \
+                            .setdefault(DefeaterType.PROPER, {}) \
+                            .setdefault(counter_argument, disagreement)
+                    elif not disagreement.is_preferable_to(counter_argument):
+                        self._defeaters \
+                            .setdefault(argument, {}) \
+                            .setdefault(DefeaterType.BLOCKING, {}) \
+                            .setdefault(counter_argument, disagreement)
+
+        return self._defeaters
 
     def get_derivations(self, literal: Literal, mode: RuleType = RuleType.DEFEASIBLE) -> Set[Derivation]:
         if not self.program.get_facts():
@@ -380,18 +384,25 @@ class Interpreter:
         return {Derivation(rules, self) for rules in get_derivations(literal, index)}
 
     def get_literals(self, mode: RuleType = RuleType.DEFEASIBLE) -> Set[Literal]:
-        return {rule.head for rule in self.program.rules if rule.type.value <= mode.value}
+        if self._literals is None:
+            self._literals = {rule.head for rule in self.program.rules if rule.type.value <= mode.value}
+
+        return self._literals
 
     def get_structures(self, mode: RuleType = RuleType.DEFEASIBLE) -> Set[Structure]:
-        structures = set()
-        literals = self.get_literals(mode)
-        for literal in literals:
-            derivations = self.get_derivations(literal, mode)
-            for derivation in derivations:
-                structure = derivation.get_structure()
-                structures.add(structure)
+        if self._structures is None:
+            self._structures = {}
 
-        return structures
+        if mode not in self._structures:
+            structures = self._structures.get(mode, set())
+            literals = self.get_literals(mode)
+            for literal in literals:
+                derivations = self.get_derivations(literal, mode)
+                for derivation in derivations:
+                    structure = derivation.get_structure()
+                    structures.add(structure)
+
+        return self._structures.get(mode, set())
 
     def is_contradictory(self, mode: RuleType = RuleType.DEFEASIBLE) -> bool:
         index = as_index(self.program.rules, mode)
@@ -399,19 +410,26 @@ class Interpreter:
         return is_contradictory(index)
 
     def query(self, literal: Literal, mode: RuleType = RuleType.DEFEASIBLE) -> Tuple[Answer, Optional[Warrant]]:
-        if literal not in self.get_literals(mode):
-            return Answer.UNKNOWN, None
+        if self._answers is None:
+            self._answers = {}
 
-        warrant = self._get_warrant(literal, mode)
-        if warrant is not None:
-            return Answer.YES, warrant
+        answers = self._answers.setdefault(mode, {})
+        if literal not in answers:
+            if literal not in self.get_literals(mode):
+                answers.setdefault(literal, (Answer.UNKNOWN, None))
+            else:
+                warrant = self._get_warrant(literal, mode)
+                if warrant is not None:
+                    answers.setdefault(literal, (Answer.YES, warrant))
+                else:
+                    complement = literal.get_complement()
+                    warrant = self._get_warrant(complement, mode)
+                    if warrant is not None:
+                        answers.setdefault(literal, (Answer.NO, warrant))
+                    else:
+                        answers.setdefault(literal, (Answer.UNDECIDED, None))
 
-        complement = literal.get_complement()
-        warrant = self._get_warrant(complement, mode)
-        if warrant is not None:
-            return Answer.NO, warrant
-
-        return Answer.UNDECIDED, None
+        return self._answers.get(mode, {}).get(literal, (Answer.UNKNOWN, None))
 
     def _get_warrant(self, literal: Literal, mode: RuleType = RuleType.DEFEASIBLE) -> Optional[Warrant]:
         derivations = self.get_derivations(literal, mode)
@@ -422,8 +440,6 @@ class Interpreter:
         for derivation in derivations:
             structure = derivation.get_structure()
             tree = DialecticalTree.create(structure, defeaters)
-            # print(tree)
-            # print()
             mark = tree.mark()
             if mark == Mark.UNDEFEATED:
                 return structure.argument
@@ -513,6 +529,8 @@ if __name__ == '__main__':
     i = Interpreter(p)
 
     defeaters = i.get_defeaters()
+
+
     # for argument in sorted(defeaters):
     #     for dtype in [DefeaterType.PROPER, DefeaterType.BLOCKING]:
     #         for counter_argument in sorted(defeaters[argument].get(dtype, {})):
@@ -525,9 +543,10 @@ if __name__ == '__main__':
         result, warrant = i.query(literal)
         print('%s.' % result.name)
         if warrant:
-            for rule in warrant:
+            for rule in sorted(warrant):
                 print('\t%s' % rule)
         print()
+
 
     query(Literal.parse('penguin(tina)'))
     query(Literal.parse('bird(tina)'))
