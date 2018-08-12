@@ -2,13 +2,14 @@ from unittest import TestCase
 
 from assertpy import assert_that
 
-from defeasible.domain.definitions import Literal, Program, RuleType
-from defeasible.domain.memory import Memory
+from defeasible.domain.definitions import Literal, Program, Rule, RuleType
+from defeasible.domain.interpretation import Derivation, Interpreter
 
 
 class TestLanguage(TestCase):
-    def test__derive__0(self):
-        memory = Memory(Program.parse("""
+
+    def test__get_derivations__0(self):
+        p = Program.parse("""
             a <- b, c. 
             b <- d, e. 
             b <- c. 
@@ -18,13 +19,15 @@ class TestLanguage(TestCase):
             f. 
             g. 
             h.
-        """))
+        """)
+        i = Interpreter(p)
+        expected = {Derivation([Rule.parse('e.')], i)}
+        result = i.get_derivations(Literal.parse('e'))
 
-        assert_that(memory.get_derivation(Literal.parse('e'))) \
-            .contains_only({Literal.parse('e')})
+        assert_that(result).is_equal_to(expected)
 
-    def test__derive__1(self):
-        memory = Memory(Program.parse("""
+    def test__get_derivations__1(self):
+        p = Program.parse("""
             a <- b, c. 
             b <- d, e. 
             b <- c. 
@@ -34,13 +37,15 @@ class TestLanguage(TestCase):
             f. 
             g. 
             h.
-        """))
+        """)
+        i = Interpreter(p)
+        expected = {Derivation([Rule.parse('d <- h.'), Rule.parse('h.')], i)}
+        result = i.get_derivations(Literal.parse('d'))
 
-        assert_that(memory.get_derivation(Literal.parse('d'))) \
-            .contains_only({Literal.parse('h'), Literal.parse('d')})
+        assert_that(result).is_equal_to(expected)
 
-    def test__derive__2(self):
-        memory = Memory(Program.parse("""
+    def test__get_derivations__2(self):
+        p = Program.parse("""
             a <- b, c. 
             b <- d, e. 
             b <- c. 
@@ -50,13 +55,15 @@ class TestLanguage(TestCase):
             f. 
             g. 
             h.
-        """))
+        """)
+        i = Interpreter(p)
+        expected = {Derivation([Rule.parse('c <- f, g.'), Rule.parse('f.'), Rule.parse('g.')], i)}
+        result = i.get_derivations(Literal.parse('c'))
 
-        assert_that(memory.get_derivation(Literal.parse('c'))) \
-            .contains_only({Literal.parse('f'), Literal.parse('g'), Literal.parse('c')})
+        assert_that(result).is_equal_to(expected)
 
-    def test__derive__3(self):
-        memory = Memory(Program.parse("""
+    def test__get_derivations__3(self):
+        p = Program.parse("""
             a <- b, c. 
             b <- d, e. 
             b <- c. 
@@ -66,14 +73,18 @@ class TestLanguage(TestCase):
             f. 
             g. 
             h.
-        """))
+        """)
+        i = Interpreter(p)
+        expected = {
+            Derivation([Rule.parse('b <- c.'), Rule.parse('c <- f, g.'), Rule.parse('f.'), Rule.parse('g.')], i),
+            Derivation([Rule.parse('b <- d, e.'), Rule.parse('d <- h.'), Rule.parse('h.'), Rule.parse('e.')], i),
+        }
+        result = i.get_derivations(Literal.parse('b'))
 
-        assert_that(memory.get_derivation(Literal.parse('b'))) \
-            .contains_only({Literal.parse('f'), Literal.parse('g'), Literal.parse('c'), Literal.parse('b')},
-                           {Literal.parse('h'), Literal.parse('d'), Literal.parse('e'), Literal.parse('b')})
+        assert_that(result).is_equal_to(expected)
 
-    def test__derive__4(self):
-        memory = Memory(Program.parse("""
+    def test__get_derivations__4(self):
+        p = Program.parse("""
             a <- b, c. 
             b <- d, e. 
             b <- c. 
@@ -83,17 +94,33 @@ class TestLanguage(TestCase):
             f. 
             g. 
             h.
-        """))
+        """)
+        i = Interpreter(p)
+        expected = {
+            Derivation([
+                Rule.parse('a <- b, c.'),
+                Rule.parse('b <- c.'),
+                Rule.parse('c <- f, g.'),
+                Rule.parse('f.'),
+                Rule.parse('g.'),
+            ], i),
+            Derivation([
+                Rule.parse('a <- b, c.'),
+                Rule.parse('b <- d, e.'),
+                Rule.parse('d <- h.'),
+                Rule.parse('h.'),
+                Rule.parse('e.'),
+                Rule.parse('c <- f, g.'),
+                Rule.parse('f.'),
+                Rule.parse('g.'),
+            ], i),
+        }
+        result = i.get_derivations(Literal.parse('a'))
 
-        assert_that(memory.get_derivation(Literal.parse('a'))) \
-            .contains_only(
-            {Literal.parse('f'), Literal.parse('g'), Literal.parse('c'), Literal.parse('b'),
-             Literal.parse('a')},
-            {Literal.parse('h'), Literal.parse('d'), Literal.parse('f'), Literal.parse('e'),
-             Literal.parse('g'), Literal.parse('b'), Literal.parse('c'), Literal.parse('a')})
+        assert_that(result).is_equal_to(expected)
 
-    def test__derive__bird_tina__defeasibly(self):
-        program = Program.parse("""
+    def test__get_derivations__bird_tina__defeasibly(self):
+        p = Program.parse("""
             bird(X) <- chicken(X).
             bird(X) <- penguin(X).
             ~flies(X) <- penguin(X).
@@ -105,13 +132,14 @@ class TestLanguage(TestCase):
             nests_in_trees(X) -< flies(X).
             ~flies(X) -< chicken(X).
         """)
-        memory = Memory(program)
+        i = Interpreter(p)
+        expected = {Derivation([Rule.parse('bird(tina) <- chicken(tina).'), Rule.parse('chicken(tina).')], i)}
+        result = i.get_derivations(Literal.parse('bird(tina)'), RuleType.DEFEASIBLE)
 
-        assert_that(memory.get_derivation(Literal.parse('bird(tina)'), RuleType.DEFEASIBLE)) \
-            .contains_only([Literal.parse('chicken(tina)'), Literal.parse('bird(tina)')])
+        assert_that(result).is_equal_to(expected)
 
-    def test__derive__bird_tina__strictly(self):
-        program = Program.parse("""
+    def test__get_derivations__bird_tina__strictly(self):
+        p = Program.parse("""
             bird(X) <- chicken(X).
             bird(X) <- penguin(X).
             ~flies(X) <- penguin(X).
@@ -123,13 +151,14 @@ class TestLanguage(TestCase):
             nests_in_trees(X) -< flies(X).
             ~flies(X) -< chicken(X).
         """)
-        memory = Memory(program)
+        i = Interpreter(p)
+        expected = {Derivation([Rule.parse('bird(tina) <- chicken(tina)..'), Rule.parse('chicken(tina).')], i)}
+        result = i.get_derivations(Literal.parse('bird(tina)'), RuleType.STRICT)
 
-        assert_that(memory.get_derivation(Literal.parse('bird(tina)'), RuleType.STRICT)) \
-            .contains_only([Literal.parse('chicken(tina)'), Literal.parse('bird(tina)')])
+        assert_that(result).is_equal_to(expected)
 
-    def test__derive__flies_tina__defeasibly(self):
-        program = Program.parse("""
+    def test__get_derivations__flies_tina__defeasibly(self):
+        p = Program.parse("""
             bird(X) <- chicken(X).
             bird(X) <- penguin(X).
             ~flies(X) <- penguin(X).
@@ -141,15 +170,17 @@ class TestLanguage(TestCase):
             nests_in_trees(X) -< flies(X).
             ~flies(X) -< chicken(X).
         """)
-        memory = Memory(program)
+        i = Interpreter(p)
+        expected = {
+            Derivation([Rule.parse('flies(tina) -< chicken(tina), scared(tina).'), Rule.parse('chicken(tina).'), Rule.parse('scared(tina).')], i),
+            Derivation([Rule.parse('flies(tina) -< bird(tina).'), Rule.parse('bird(tina) <- chicken(tina).'), Rule.parse('chicken(tina).')], i),
+        }
+        result = i.get_derivations(Literal.parse('flies(tina)'), RuleType.DEFEASIBLE)
 
-        assert_that(memory.get_derivation(Literal.parse('flies(tina)'), RuleType.DEFEASIBLE)) \
-            .contains_only(
-            [Literal.parse('chicken(tina)'), Literal.parse('bird(tina)'), Literal.parse('flies(tina)')],
-            [Literal.parse('chicken(tina)'), Literal.parse('scared(tina)'), Literal.parse('flies(tina)')])
+        assert_that(result).is_equal_to(expected)
 
-    def test__derive__flies_tina__strictly(self):
-        program = Program.parse("""
+    def test__get_derivations__flies_tina__strictly(self):
+        p = Program.parse("""
             bird(X) <- chicken(X).
             bird(X) <- penguin(X).
             ~flies(X) <- penguin(X).
@@ -161,12 +192,14 @@ class TestLanguage(TestCase):
             nests_in_trees(X) -< flies(X).
             ~flies(X) -< chicken(X).
         """)
-        memory = Memory(program)
+        i = Interpreter(p)
+        expected = set()
+        result = i.get_derivations(Literal.parse('flies(tina)'), RuleType.STRICT)
 
-        assert_that(memory.get_derivation(Literal.parse('flies(tina)'), RuleType.STRICT)).is_none()
+        assert_that(result).is_equal_to(expected)
 
-    def test__derive__not_bird_tina__defeasibly(self):
-        program = Program.parse("""
+    def test__get_derivations__not_bird_tina__defeasibly(self):
+        p = Program.parse("""
             bird(X) <- chicken(X).
             bird(X) <- penguin(X).
             ~flies(X) <- penguin(X).
@@ -178,12 +211,14 @@ class TestLanguage(TestCase):
             nests_in_trees(X) -< flies(X).
             ~flies(X) -< chicken(X).
         """)
-        memory = Memory(program)
+        i = Interpreter(p)
+        expected = set()
+        result = i.get_derivations(Literal.parse('~bird(tina)'), RuleType.DEFEASIBLE)
 
-        assert_that(memory.get_derivation(Literal.parse('~bird(tina)'), RuleType.DEFEASIBLE)).is_none()
+        assert_that(result).is_equal_to(expected)
 
-    def test__derive__not_bird_tina__strictly(self):
-        program = Program.parse("""
+    def test__get_derivations__not_bird_tina__strictly(self):
+        p = Program.parse("""
             bird(X) <- chicken(X).
             bird(X) <- penguin(X).
             ~flies(X) <- penguin(X).
@@ -195,12 +230,14 @@ class TestLanguage(TestCase):
             nests_in_trees(X) -< flies(X).
             ~flies(X) -< chicken(X).
         """)
-        memory = Memory(program)
+        i = Interpreter(p)
+        expected = set()
+        result = i.get_derivations(Literal.parse('~bird(tina)'), RuleType.STRICT)
 
-        assert_that(memory.get_derivation(Literal.parse('~bird(tina)'), RuleType.STRICT)).is_none()
+        assert_that(result).is_equal_to(expected)
 
-    def test__derive__not_flies_tina__defeasibly(self):
-        program = Program.parse("""
+    def test__get_derivations__not_flies_tina__defeasibly(self):
+        p = Program.parse("""
             bird(X) <- chicken(X).
             bird(X) <- penguin(X).
             ~flies(X) <- penguin(X).
@@ -212,13 +249,14 @@ class TestLanguage(TestCase):
             nests_in_trees(X) -< flies(X).
             ~flies(X) -< chicken(X).
         """)
-        memory = Memory(program)
+        i = Interpreter(p)
+        expected = {Derivation([Rule.parse('~flies(tina) -< chicken(tina).'), Rule.parse('chicken(tina).')], i)}
+        result = i.get_derivations(Literal.parse('~flies(tina)'), RuleType.DEFEASIBLE)
 
-        assert_that(memory.get_derivation(Literal.parse('~flies(tina)'), RuleType.DEFEASIBLE)) \
-            .contains_only([Literal.parse('chicken(tina)'), Literal.parse('~flies(tina)')])
+        assert_that(result).is_equal_to(expected)
 
-    def test__derive__not_flies_tina__strictly(self):
-        program = Program.parse("""
+    def test__get_derivations__not_flies_tina__strictly(self):
+        p = Program.parse("""
             bird(X) <- chicken(X).
             bird(X) <- penguin(X).
             ~flies(X) <- penguin(X).
@@ -230,12 +268,14 @@ class TestLanguage(TestCase):
             nests_in_trees(X) -< flies(X).
             ~flies(X) -< chicken(X).
         """)
-        memory = Memory(program)
+        i = Interpreter(p)
+        expected = set()
+        result = i.get_derivations(Literal.parse('~flies(tina)'), RuleType.STRICT)
 
-        assert_that(memory.get_derivation(Literal.parse('~flies(tina)'), RuleType.STRICT)).is_none()
+        assert_that(result).is_equal_to(expected)
 
     def test__is_contradictory__defeasibly(self):
-        program = Program.parse("""
+        p = Program.parse("""
             bird(X) <- chicken(X).
             bird(X) <- penguin(X).
             ~flies(X) <- penguin(X).
@@ -247,12 +287,14 @@ class TestLanguage(TestCase):
             nests_in_trees(X) -< flies(X).
             ~flies(X) -< chicken(X).
         """)
-        memory = Memory(program)
+        i = Interpreter(p)
+        expected = True
+        result = i.is_contradictory(RuleType.DEFEASIBLE)
 
-        assert_that(memory.is_contradictory(RuleType.DEFEASIBLE)).is_true()
+        assert_that(result).is_equal_to(expected)
 
     def test__is_contradictory__strictly(self):
-        program = Program.parse("""
+        p = Program.parse("""
             bird(X) <- chicken(X).
             bird(X) <- penguin(X).
             ~flies(X) <- penguin(X).
@@ -264,6 +306,8 @@ class TestLanguage(TestCase):
             nests_in_trees(X) -< flies(X).
             ~flies(X) -< chicken(X).
         """)
-        memory = Memory(program)
+        i = Interpreter(p)
+        expected = False
+        result = i.is_contradictory(RuleType.STRICT)
 
-        assert_that(memory.is_contradictory(RuleType.STRICT)).is_false()
+        assert_that(result).is_equal_to(expected)
