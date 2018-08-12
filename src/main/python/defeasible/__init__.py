@@ -79,8 +79,9 @@ def main(blind: bool = False):
             else:
                 answer, warrant = interpreter.query(literal)
                 print(Renderer.render(answer, blind=blind))
-                for rule in sorted(warrant):
-                    print('\t', Renderer.render(rule, blind=blind))
+                if warrant:
+                    for rule in sorted(warrant):
+                        print('\t', Renderer.render(rule, blind=blind))
 
 
 def get_filename() -> str:
