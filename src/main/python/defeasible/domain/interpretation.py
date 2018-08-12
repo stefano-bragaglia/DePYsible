@@ -250,14 +250,11 @@ class DialecticalTree:
         if self.content.derivation.interpreter != defeater.derivation.interpreter:
             raise Exception('From different interpreters')
 
-        return not self._is_already_used(defeater) and not self._is_subargument(defeater)
+        return \
+            not self._is_already_used(defeater) \
+            and not self._is_subargument(defeater) \
+            and not self._is_concordant(defeater)
 
-        # if self._is_already_used(defeater):
-        #     return False
-        #
-        # if self._is_subargument(defeater):
-        #     return False
-        #
         # if not self._is_concordant(defeater):
         #     return False
         #
