@@ -34,8 +34,9 @@ class Structure:
         if self.is_strict() or structure.is_strict():
             return False
 
-        return disagreement.is_subargument_of(structure) \
-               and disagree(disagreement.conclusion, self.conclusion, self.derivation.interpreter.program.rules)
+        return \
+            disagreement.is_subargument_of(structure) \
+            and disagree(disagreement.conclusion, self.conclusion, self.derivation.interpreter.program.rules)
 
     def is_equi_specific_to(self, structure: 'Structure') -> bool:
         if self.derivation.interpreter != structure.derivation.interpreter:
