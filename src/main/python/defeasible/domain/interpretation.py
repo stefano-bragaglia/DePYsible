@@ -253,12 +253,8 @@ class DialecticalTree:
         return \
             not self._is_already_used(defeater) \
             and not self._is_subargument(defeater) \
-            and not self._is_concordant(defeater)
-
-        # if not self._is_concordant(defeater):
-        #     return False
-        #
-        # return self._is_not_chain_or_defeated(defeater, disagreement)
+            and not self._is_concordant(defeater) \
+            and self._is_not_chain_or_defeated(defeater, disagreement)
 
     def _is_already_used(self, defeater: Structure) -> bool:
         if defeater == self.content:
