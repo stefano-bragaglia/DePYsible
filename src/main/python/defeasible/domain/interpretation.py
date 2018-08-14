@@ -244,8 +244,8 @@ class DialecticalTree:
         return \
             not self._is_already_used(defeater) \
             and not self._is_subargument(defeater) \
-            and self._is_concordant(defeater) \
             and self._is_not_chain_or_defeated(defeater, disagreement)
+        # and self._is_concordant(defeater)  # \
 
     def _is_already_used(self, defeater: Structure) -> bool:
         if defeater == self.content:
@@ -425,7 +425,6 @@ class Interpreter:
         for derivation in derivations:
             structure = derivation.get_structure()
             tree = DialecticalTree.create(structure, defeaters)
-            print(tree)
             mark = tree.mark()
             if mark == Mark.UNDEFEATED:
                 return structure.argument
