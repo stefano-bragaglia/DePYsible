@@ -237,15 +237,6 @@ class DialecticalTree:
                     node.build(defeaters)
                     self.children.add(node)
 
-    def get_acceptable_defeaters(self, structures: Set[Structure]) -> Dict[Structure, Structure]:
-        defeaters = {}
-        for defeater in structures:
-            for disagreement in structures:
-                if self.content.is_defeater_for(defeater, disagreement) and self.is_acceptable(defeater, disagreement):
-                    defeaters.setdefault(defeater, disagreement)
-
-        return defeaters
-
     def is_acceptable(self, defeater: Structure, disagreement: Structure) -> bool:
         if self.content.derivation.interpreter != defeater.derivation.interpreter:
             raise Exception('From different interpreters')
@@ -388,7 +379,7 @@ class Interpreter:
             self._structures = {}
 
         if mode not in self._structures:
-            structures = self._structures.get(mode, set())
+            structures = self._structures.setdefault(mode, set())
             literals = self.get_literals(mode)
             for literal in literals:
                 derivations = self.get_derivations(literal, mode)
@@ -434,6 +425,7 @@ class Interpreter:
         for derivation in derivations:
             structure = derivation.get_structure()
             tree = DialecticalTree.create(structure, defeaters)
+            print(tree)
             mark = tree.mark()
             if mark == Mark.UNDEFEATED:
                 return structure.argument
@@ -503,3 +495,18 @@ def get_derivations(literal: Literal, index: Index) -> List[List[Rule]]:
                     derivations.append(partial)
 
     return derivations
+
+
+# Summary = Dict[Structure, Dict[DefeaterType, Dict[Structure, Structure]]]
+
+
+def recurse(argument: Structure, summary: Summary):
+    print(argument)
+    _recurse(argument, summary, 0)
+
+
+def _recurse(argument: Structure, summary: Summary, indent: int = 0):
+    for type in DefeaterType:
+        for defeater, disagreement in summary.get(argument, {}).get(type, {}).items():
+            print('\t' * indent, defeater, '[', disagreement, ']')
+            _recurse(defeater, summary, indent + 1)
