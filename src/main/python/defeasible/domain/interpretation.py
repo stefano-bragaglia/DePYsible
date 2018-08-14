@@ -211,12 +211,13 @@ class DialecticalTree:
         self.type = type
         self.parent = parent
         self.children = set()
-        if not self.parent or not self.parent.parent:
-            self._concordance = as_index(self.content.derivation.interpreter.program.rules, RuleType.STRICT)
-        else:
-            self._concordance = {**self.parent.parent._concordance}
-        for rule in self.content.argument:
-            self._concordance.setdefault(rule.head, set()).add(rule)
+        # self._discordance = {**self.parent._concordance} if self.parent else {}
+        # if not self.parent or not self.parent._discordance:
+        #     self._concordance = as_index(self.content.derivation.interpreter.program.rules, RuleType.STRICT)
+        # else:
+        #     self._concordance = {**self.parent.parent._discordance}
+        # for rule in self.content.argument:
+        #     self._concordance.setdefault(rule.head, set()).add(rule)
 
     def __hash__(self) -> int:
         return hash(repr(self))
@@ -245,7 +246,7 @@ class DialecticalTree:
             not self._is_already_used(defeater) \
             and not self._is_subargument(defeater) \
             and self._is_not_chain_or_defeated(defeater, disagreement)
-        # and self._is_concordant(defeater)  # \
+        # and self._is_concordant(defeater) \
 
     def _is_already_used(self, defeater: Structure) -> bool:
         if defeater == self.content:
