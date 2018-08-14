@@ -29,20 +29,20 @@ def set_properties(project):
     project.set_property("coverage_verbose_output", True)  # default is False
     project.set_property("coverage_allow_non_imported_modules", False)  # default is True
     project.set_property("coverage_exceptions", [
-        "__init__",
-        "defeasible",
-        "defeasible.dialectical",
-        "defeasible.domain",
-        "defeasible.domain.definitions",
-        "defeasible.domain.interpretation",
-        "defeasible.domain.rendering",
-        "defeasible.domain.rete",
-        "defeasible.domain.theme",
-        "defeasible.example",
-        "defeasible.language",
-        "defeasible.language.grammar",
-        "defeasible.language.visitor",
-        "defeasible.old_definitions",
+        # "__init__",
+        # "defeasible",
+        # "defeasible.dialectical",
+        # "defeasible.domain",
+        # "defeasible.domain.definitions",
+        # "defeasible.domain.interpretation",
+        # "defeasible.domain.rendering",
+        # "defeasible.domain.rete",
+        # "defeasible.domain.theme",
+        # "defeasible.example",
+        # "defeasible.language",
+        # "defeasible.language.grammar",
+        # "defeasible.language.visitor",
+        # "defeasible.old_definitions",
     ])
 
     project.set_property("coverage_threshold_warn", 70)  # default is 70
@@ -50,6 +50,7 @@ def set_properties(project):
     project.set_property("coverage_branch_partial_threshold_warn", 70)  # default is 0
 
     project.set_property("dir_source_unittest_python", "src/test/python")
+    project.set_property("unittest_module_glob", "tests_*")
 
     project.depends_on("assertpy")
     project.depends_on("coloredlogs")

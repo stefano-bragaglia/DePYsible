@@ -783,7 +783,7 @@ class TestDefeasibleVisitor(TestCase):
         from defeasible.domain.definitions import Atom
         from defeasible.language.grammar import atom
 
-        expected = Atom('"string"', [])
+        expected = Atom('"String"', [])
         assert_that(self.process(atom, "'String'")) \
             .is_equal_to(expected)
 
@@ -791,7 +791,7 @@ class TestDefeasibleVisitor(TestCase):
         from defeasible.domain.definitions import Atom
         from defeasible.language.grammar import atom
 
-        expected = Atom('"tring"', [])
+        expected = Atom('"String"', [])
         assert_that(self.process(atom, "'String'()")) \
             .is_equal_to(expected)
 
@@ -815,7 +815,7 @@ class TestDefeasibleVisitor(TestCase):
         from defeasible.domain.definitions import Atom
         from defeasible.language.grammar import atom
 
-        expected = Atom('"string"', [True, False, 'identifier', 123, -0.012, '"double"', '"single"'])
+        expected = Atom('string', [True, False, 'identifier', 123, -0.012, '"double"', '"single"'])
         assert_that(self.process(atom, "'string'(True, False, identifier, 123, -1.2E-2, \"double\", 'single')")) \
             .is_equal_to(expected)
 
