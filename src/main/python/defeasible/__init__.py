@@ -137,7 +137,7 @@ def show_credits(blind: bool = False):
           (Style.NORMAL, Fore.BLUE, Style.DIM, Fore.WHITE, Style.NORMAL, Fore.GREEN,
            Style.DIM, Fore.WHITE, Fore.RESET, Style.RESET_ALL))
     print('  %s%s4(1):95–138%s%s, %s%s2004%s%s. %s%shttps://arxiv.org/abs/cs/0302029%s%s' %
-          (Style.NORMAL, Fore.CYAN, Style.DIM, Fore.WHITE, Style.NORMAL, Fore.YELLOW,
+          (Style.NORMAL, Fore.CYAN, Style.DIM, Fore.WHITE, Style.NORMAL, Fore.CYAN,
            Style.DIM, Fore.WHITE, Style.NORMAL, Fore.RED, Style.RESET_ALL, Fore.RESET))
 
 
@@ -146,9 +146,9 @@ def show_copyright(blind: bool = False):
         print("Copyright (c) 2018, Stefano Bragaglia")
         print("All rights reserved. https://github.com/stefano-bragaglia/DefeasiblePython")
 
-    print("%s%sCopyright (c) 2018, %sStefano Bragaglia%s" % (Fore.WHITE, Style.DIM, Style.RESET_ALL, Fore.RESET))
+    print("%s%sCopyright (c) 2018, %sStefano Bragaglia%s" % (Fore.BLUE, Style.NORMAL, Style.RESET_ALL, Fore.RESET))
     print("%s%sAll rights reserved. %s%shttps://github.com/stefano-bragaglia/DefeasiblePython%s%s" %
-          (Style.DIM, Fore.WHITE, Style.NORMAL, Fore.RED, Fore.RESET, Style.RESET_ALL))
+          (Style.NORMAL, Fore.CYAN, Style.NORMAL, Fore.RED, Fore.RESET, Style.RESET_ALL))
 
 
 def show_help(blind: bool = False):
