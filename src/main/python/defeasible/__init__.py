@@ -144,10 +144,11 @@ def show_credits(blind: bool = False):
 def show_copyright(blind: bool = False):
     if blind:
         print("Copyright (c) 2018, Stefano Bragaglia")
-        print("All rights reserved.")
+        print("All rights reserved. https://github.com/stefano-bragaglia/DefeasiblePython")
 
     print("%s%sCopyright (c) 2018, %sStefano Bragaglia%s" % (Fore.WHITE, Style.DIM, Style.RESET_ALL, Fore.RESET))
-    print("%s%sAll rights reserved.%s%s" % (Style.DIM, Fore.WHITE, Fore.RESET, Style.RESET_ALL))
+    print("%s%sAll rights reserved. %s%shttps://github.com/stefano-bragaglia/DefeasiblePython%s%s" %
+          (Style.DIM, Fore.WHITE, Style.NORMAL, Fore.RED, Fore.RESET, Style.RESET_ALL))
 
 
 def show_help(blind: bool = False):
