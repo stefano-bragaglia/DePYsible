@@ -15,7 +15,7 @@ def main(blind: bool = False):
     program = Program([])
     interpreter = Interpreter(program)
 
-    show_intro()
+    show_intro(blind)
     while True:
         command = input(prompt(blind)).strip()
 
@@ -33,8 +33,8 @@ def main(blind: bool = False):
                 filename = get_filename()
             subprocess.call(['nano', filename])
 
-        # elif command == 'ground.':
-        #     program = program.get_ground_program()
+        elif command == 'ground':
+            print(Renderer.render(interpreter.program, blind=blind))
 
         elif command == 'help':
             show_help(blind)
@@ -60,7 +60,7 @@ def main(blind: bool = False):
                     program = Program.parse(file.read())
                     interpreter = Interpreter(program)
             except Exception as e:
-                show_error(str(e), blind)
+                show_error(str(e), blind=blind)
             else:
                 filename = tmp_filename
 
@@ -72,7 +72,7 @@ def main(blind: bool = False):
                 try:
                     rules.update(Program.parse(command).rules)
                 except Exception as e:
-                    show_error(str(e), blind)
+                    show_error(str(e), blind=blind)
                 else:
                     program = Program(list(rules))
                     interpreter = Interpreter(program)
@@ -97,12 +97,12 @@ def show_intro(blind: bool = False):
     import platform
 
     if blind:
-        print('Welcome to Defeasible 0.0.1 (%s)' % platform.platform())
+        print('Welcome to Defeasible 0.1.0 (%s)' % platform.platform())
         print('Defeasible comes with ABSOLUTELY NO WARRANTY. This is free software.')
         print('Type "help", "copyright", "credits" or "license" for more information.')
         return
 
-    print('%sWelcome to %sDefeasible 0.0.1%s %s(%s)%s%s' % (
+    print('%sWelcome to %sDefeasible 0.1.0%s %s(%s)%s%s' % (
         Fore.WHITE, Fore.BLUE, Fore.WHITE, Style.DIM, platform.platform(), Style.RESET_ALL, Fore.RESET))
     print('%sDefeasible%s comes with ABSOLUTELY NO WARRANTY. This is free software.%s' % (
         Fore.BLUE, Fore.WHITE, Fore.RESET))
@@ -127,18 +127,16 @@ def show_error(message: str, blind: bool = False):
 
 def show_credits(blind: bool = False):
     if blind:
-        print('  This work was inspired by A. García and G. Simari. "Defeasible Logic Programming:')
-        print('  An Argumentative Approach," in Theory and Practice of Logic Programming, ')
-        print('  4(1):95–138, 2004. https://arxiv.org/abs/cs/0302029')
+        print('This work was inspired by A. García and G. Simari. "Defeasible Logic Programming:')
+        print('An Argumentative Approach," in Theory and Practice of Logic Programming, ')
+        print('4(1):95–138, 2004. https://arxiv.org/abs/cs/0302029')
 
-    print('  %s%sThis work was inspired by %sA. García and G. Simari. %s"Defeasible Logic Programming:%s%s' %
-          (Style.DIM, Fore.WHITE, Style.RESET_ALL, Fore.BLUE, Fore.RESET, Style.RESET_ALL))
-    print('  %s%sAn Argumentative Approach,"%s%s in %s%sTheory and Practice of Logic Programming%s%s,%s%s' %
-          (Style.NORMAL, Fore.BLUE, Style.DIM, Fore.WHITE, Style.NORMAL, Fore.GREEN,
-           Style.DIM, Fore.WHITE, Fore.RESET, Style.RESET_ALL))
-    print('  %s%s4(1):95–138%s%s, %s%s2004%s%s. %s%shttps://arxiv.org/abs/cs/0302029%s%s' %
-          (Style.NORMAL, Fore.CYAN, Style.DIM, Fore.WHITE, Style.NORMAL, Fore.CYAN,
-           Style.DIM, Fore.WHITE, Style.NORMAL, Fore.RED, Style.RESET_ALL, Fore.RESET))
+    print('%sThis work was inspired by %sA. García%s and %sG. Simari%s. %s"Defeasible Logic Programming:%s' %
+          (Fore.WHITE, Fore.YELLOW, Fore.WHITE, Fore.YELLOW, Fore.WHITE, Fore.BLUE, Fore.RESET))
+    print('%sAn Argumentative Approach,"%s in %sTheory and Practice of Logic Programming%s,%s' %
+          (Fore.BLUE, Fore.WHITE, Fore.GREEN, Fore.WHITE, Fore.RESET))
+    print('%s4(1):95–138%s, %s2004%s. %shttps://arxiv.org/abs/cs/0302029%s' %
+          (Fore.CYAN, Fore.WHITE, Fore.CYAN, Fore.WHITE, Fore.RED, Fore.RESET))
 
 
 def show_copyright(blind: bool = False):
@@ -146,9 +144,9 @@ def show_copyright(blind: bool = False):
         print("Copyright (c) 2018, Stefano Bragaglia")
         print("All rights reserved. https://github.com/stefano-bragaglia/DefeasiblePython")
 
-    print("%s%sCopyright (c) 2018, %sStefano Bragaglia%s" % (Fore.BLUE, Style.NORMAL, Style.RESET_ALL, Fore.RESET))
-    print("%s%sAll rights reserved. %s%shttps://github.com/stefano-bragaglia/DefeasiblePython%s%s" %
-          (Style.NORMAL, Fore.CYAN, Style.NORMAL, Fore.RED, Fore.RESET, Style.RESET_ALL))
+    print("%sCopyright (c) 2018, %sStefano Bragaglia%s" % (Fore.WHITE, Fore.YELLOW, Fore.RESET))
+    print("%sAll rights reserved. %shttps://github.com/stefano-bragaglia/DefeasiblePython%s" %
+          (Fore.WHITE, Fore.RED, Fore.RESET))
 
 
 def show_help(blind: bool = False):

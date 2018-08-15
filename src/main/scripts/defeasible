@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import argparse
 import logging
 
 import colorama
@@ -14,5 +15,8 @@ coloredlogs.install()
 _logger = logging.getLogger('defeasible')
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(prog='defeasible', add_help=True, allow_abbrev=True)
+    parser.add_argument('-b', '--blind', help='ignore colours to render output', action='store_true', default=False)
+    namespace = parser.parse_args()
+    main(blind=namespace.blind)
     _logger.verbose('Done.')
