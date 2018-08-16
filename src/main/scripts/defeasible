@@ -30,7 +30,7 @@ class DefeasibleShell(Cmd):
 Type "help", "copyright", "credits" or "license" for more information.""" % (
             self._prog(self.blind),
             self._version(self.blind),
-            platform.platform(),
+            self._platform(self.blind),
             self._prog(self.blind),
         )
         self.prompt = self._prompt(blind=self.blind)
