@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import logging
-import platform
 from argparse import ArgumentParser
 from argparse import Namespace
 from cmd import Cmd
@@ -19,22 +18,65 @@ coloredlogs.install()
 
 _logger = logging.getLogger('defeasible')
 
+NAME = 'Defeasible'
+VERSION = '0.1.0'
+
+
+def program(blind: bool = False) -> str:
+    if blind:
+        return NAME
+
+    return '%s%s%s' % (Fore.BLUE, NAME, Fore.RESET)
+
+
+def version(blind: bool = False) -> str:
+    if blind:
+        return VERSION
+
+    return '%s%s%s' % (Fore.BLUE, VERSION, Fore.RESET)
+
+
+def platform(blind: bool = False) -> str:
+    import platform
+
+    if blind:
+        return '(%s)' % platform.platform()
+
+    return '%s(%s)%s' % (Style.DIM, platform.platform(), Style.RESET_ALL)
+
+
+def command(name: str, blind: bool = False) -> str:
+    if blind:
+        return '"%s"' % name
+
+    return '%s"%s"%s' % (Fore.YELLOW, name, Fore.RESET)
+
+
+def prompt(blind: bool = False) -> str:
+    if blind:
+        return '\n?- '
+
+    else:
+        return '\n%s?-%s ' % (Style.DIM, Style.RESET_ALL)
+
+
+def intro(blind: bool = False) -> str:
+    return """Welcome to %s %s %s
+%s comes with ABSOLUTELY NO WARRANTY. This is free software.
+Type %s, %s, %s and %s for more information.""" % (
+        program(blind), version(blind), platform(blind), program(blind),
+        command('help', blind), command('copyright', blind), command('credits', blind), command('license', blind)
+    )
+
 
 class DefeasibleShell(Cmd):
 
     def __init__(self, namespace: Namespace):
         super().__init__()
         self.blind = namespace.blind
-        self.intro = """Welcome to %s %s (%s)
-%s comes with ABSOLUTELY NO WARRANTY. This is free software.
-Type "help", "copyright", "credits" or "license" for more information.""" % (
-            self._prog(self.blind),
-            self._version(self.blind),
-            self._platform(self.blind),
-            self._prog(self.blind),
-        )
-        self.prompt = self._prompt(blind=self.blind)
-        self.rules = ''
+        self.intro = intro(self.blind)
+        self.prompt = prompt(blind=self.blind)
+        self.ruler = ''
 
     def do_halt(self, arg):
         """Stop this session and close the interpreter"""
@@ -42,35 +84,6 @@ Type "help", "copyright", "credits" or "license" for more information.""" % (
         # self.close()
         # bye()
         return True
-
-    @staticmethod
-    def _prog(blind: bool = False) -> str:
-        if blind:
-            return 'Defeasible'
-
-        return '%sDefeasible%s' % (Fore.BLUE, Fore.RESET)
-
-    @staticmethod
-    def _version(blind: bool = False) -> str:
-        if blind:
-            return '0.1.0'
-
-        return '%s0.1.0%s' % (Fore.BLUE, Fore.RESET)
-
-    @staticmethod
-    def _platform(blind: bool = False) -> str:
-        if blind:
-            return '(%s)' % platform.platform()
-
-        return '%s(%s)%s' % (Style.DIM, platform.platform(), Style.RESET_ALL)
-
-    @staticmethod
-    def _prompt(blind: bool = False) -> str:
-        if blind:
-            return '\n?- '
-
-        else:
-            return '\n%s?-%s ' % (Style.DIM, Style.RESET_ALL)
 
 
 if __name__ == '__main__':
