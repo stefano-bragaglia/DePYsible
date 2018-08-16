@@ -10,6 +10,7 @@ class UncoveredClassException(Exception):
 
 
 class Renderer:
+
     @staticmethod
     def comma(uncovered: bool = False, blind: bool = False) -> str:
         from defeasible.domain.theme import PUNCTUATION

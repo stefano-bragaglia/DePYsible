@@ -1,4 +1,6 @@
-from pybuilder.core import use_plugin, init, Author
+import os
+
+from pybuilder.core import init, use_plugin
 
 use_plugin("python.core")
 use_plugin("python.unittest")
@@ -11,7 +13,7 @@ use_plugin("python.pycharm")
 name = "defeasible"
 version = "0.1.0"
 author = "Stefano Bragaglia"
-with open('LICENSE', 'r') as file:
+with open(os.path.join(os.path.dirname(__file__), 'LICENSE'), 'r') as file:
     license = file.read()
 url = "https://github.com/stefano-bragaglia/DefeasiblePython"
 default_task = ["clean", "analyze", "publish"]

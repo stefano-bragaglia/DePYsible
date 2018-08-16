@@ -1,11 +1,16 @@
 #!/usr/bin/env python
-import argparse
 import logging
+import platform
+from argparse import ArgumentParser
+from argparse import Namespace
+from cmd import Cmd
 
 import colorama
 import coloredlogs
 import verboselogs
+from colorama import Style, Fore
 
+from build import name, version
 from defeasible import main
 
 colorama.init()
@@ -14,9 +19,70 @@ coloredlogs.install()
 
 _logger = logging.getLogger('defeasible')
 
+
+class DefeasibleShell(Cmd):
+
+    def __init__(self, namespace: Namespace):
+        super().__init__()
+        self.blind = namespace.blind
+        self.intro = """Welcome to %s %s (%s)
+%s comes with ABSOLUTELY NO WARRANTY. This is free software.
+Type "help", "copyright", "credits" or "license" for more information.""" % (
+            self._prog(self.blind),
+            self._version(self.blind),
+            platform.platform(),
+            self._prog(self.blind),
+        )
+        self.prompt = self._prompt(blind=self.blind)
+        self.rules = ''
+
+    def do_halt(self, arg):
+        """Stop this session and close the interpreter"""
+        # print('Thank you for using Turtle')
+        # self.close()
+        # bye()
+        return True
+
+
+    @staticmethod
+    def _prog(blind: bool = False) -> str:
+        if blind:
+            return 'Defeasible'
+
+        return '%sDefeasible%s' % (Fore.BLUE, Fore.RESET)
+
+    @staticmethod
+    def _version(blind: bool = False) -> str:
+        if blind:
+            return '0.1.0'
+
+        return '%s0.1.0%s' % (Fore.BLUE, Fore.RESET)
+
+    @staticmethod
+    def _platform(blind: bool =False) -> str:
+        if blind:
+            return '(%s)' % platform.platform()
+
+        return '%s(%s)%s' % (Style.DIM, platform.platform(), Style.RESET_ALL)
+
+    @staticmethod
+    def _prompt(blind: bool = False) -> str:
+        if blind:
+            return '\n?- '
+
+        else:
+            return '\n%s?-%s ' % (Style.DIM, Style.RESET_ALL)
+
+
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(prog='defeasible', add_help=True, allow_abbrev=True)
+    parser = ArgumentParser(prog='defeasible', add_help=True, allow_abbrev=True)
     parser.add_argument('-b', '--blind', help='ignore colours to render output', action='store_true', default=False)
+    parser.add_argument('filename', help='load the file with given name', nargs='?')
     namespace = parser.parse_args()
+
+    cli = DefeasibleShell(namespace)
+    cli.cmdloop()
+
     main(blind=namespace.blind)
+
     _logger.verbose('Done.')
