@@ -8,9 +8,9 @@ from cmd import Cmd
 import colorama
 import coloredlogs
 import verboselogs
-from colorama import Style, Fore
+from colorama import Fore
+from colorama import Style
 
-from build import name, version
 from defeasible import main
 
 colorama.init()
@@ -43,7 +43,6 @@ Type "help", "copyright", "credits" or "license" for more information.""" % (
         # bye()
         return True
 
-
     @staticmethod
     def _prog(blind: bool = False) -> str:
         if blind:
@@ -59,7 +58,7 @@ Type "help", "copyright", "credits" or "license" for more information.""" % (
         return '%s0.1.0%s' % (Fore.BLUE, Fore.RESET)
 
     @staticmethod
-    def _platform(blind: bool =False) -> str:
+    def _platform(blind: bool = False) -> str:
         if blind:
             return '(%s)' % platform.platform()
 
