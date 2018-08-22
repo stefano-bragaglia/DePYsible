@@ -289,7 +289,7 @@ class TestLanguage(TestCase):
         """)
         i = Interpreter(p)
         expected = True
-        result = i.is_contradictory(RuleType.DEFEASIBLE)
+        result = bool(i.is_contradictory(RuleType.DEFEASIBLE))
 
         assert_that(result).is_equal_to(expected)
 
@@ -308,6 +308,6 @@ class TestLanguage(TestCase):
         """)
         i = Interpreter(p)
         expected = False
-        result = i.is_contradictory(RuleType.STRICT)
+        result = bool(i.is_contradictory(RuleType.STRICT))
 
         assert_that(result).is_equal_to(expected)

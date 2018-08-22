@@ -58,10 +58,10 @@ def main(blind: bool = False):
             try:
                 with open(tmp_filename, 'r') as file:
                     program = Program.parse(file.read())
-                    interpreter = Interpreter(program)
             except Exception as e:
                 show_error(str(e), blind=blind)
             else:
+                interpreter = Interpreter(program)
                 filename = tmp_filename
 
         else:

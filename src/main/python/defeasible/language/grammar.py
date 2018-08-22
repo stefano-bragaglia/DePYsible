@@ -1,6 +1,10 @@
 from arpeggio import EOF, OneOrMore, Optional, RegExMatch, ZeroOrMore
 
 
+def nothing():
+    return EOF
+
+
 def comment():
     return RegExMatch(r"%.*")
 

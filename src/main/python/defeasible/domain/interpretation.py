@@ -278,7 +278,7 @@ class DialecticalTree:
                 current = current.parent.parent
 
         index = as_index(rules)
-        return is_contradictory(index)
+        return bool(is_contradictory(index))
 
     def _is_not_chain_or_defeated(self, defeater: Structure, disagreement: Structure) -> bool:
         if not self.parent:
@@ -321,6 +321,9 @@ class Interpreter:
         self._literals = None
         self._structures = None
         self._answers = None
+        # contradiction = self.is_contradictory()
+        # if contradiction:
+        #     raise ValueError('This program is contradictory on %s' % contradiction)
 
     def __repr__(self) -> str:
         return repr(self.program)
@@ -390,7 +393,7 @@ class Interpreter:
 
         return self._structures.get(mode, set())
 
-    def is_contradictory(self, mode: RuleType = RuleType.DEFEASIBLE) -> bool:
+    def is_contradictory(self, mode: RuleType = RuleType.DEFEASIBLE) -> Optional[Literal]:
         index = as_index(self.program.rules, mode)
 
         return is_contradictory(index)
@@ -456,14 +459,14 @@ def as_index(rules: Iterable[Rule], mode: RuleType = RuleType.DEFEASIBLE) -> Ind
     return index
 
 
-def is_contradictory(index: Index) -> bool:
+def is_contradictory(index: Index) -> Optional[Literal]:
     for literal in index:
         if get_derivations(literal, index):
             complement = literal.get_complement()
             if get_derivations(complement, index):
-                return True
+                return literal
 
-    return False
+    return None
 
 
 def get_derivations(literal: Literal, index: Index) -> List[List[Rule]]:

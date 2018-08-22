@@ -93,7 +93,8 @@ class TestArgumentation(TestCase):
             Rule.parse('chicken(tina).'),
             Rule.parse('scared(tina).'),
         ], i)
-        expected = Structure({Rule.parse('flies(tina) -< chicken(tina), scared(tina).')}, Literal.parse('flies(tina)'), d)
+        expected = Structure({Rule.parse('flies(tina) -< chicken(tina), scared(tina).')}, Literal.parse('flies(tina)'),
+                             d)
         result = d.get_structure()
 
         assert_that(result).is_equal_to(expected)

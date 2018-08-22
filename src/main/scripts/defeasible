@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 import logging
+import os
+import re
+import subprocess
 from argparse import ArgumentParser
 from argparse import Namespace
 from cmd import Cmd
@@ -7,10 +10,11 @@ from cmd import Cmd
 import colorama
 import coloredlogs
 import verboselogs
-from colorama import Fore
-from colorama import Style
 
 from defeasible import main
+from defeasible.domain.definitions import Program, Literal
+from defeasible.domain.interpretation import Interpreter
+from defeasible.domain.rendering import COMMAND, LOCATION, MAIN, MUTED, PERSON, Renderer, TITLE, URL, VALUE, render_as
 
 colorama.init()
 verboselogs.install()
@@ -18,72 +22,280 @@ coloredlogs.install()
 
 _logger = logging.getLogger('defeasible')
 
-NAME = 'Defeasible'
+PROGRAM = 'Defeasible'
 VERSION = '0.1.0'
-
-
-def program(blind: bool = False) -> str:
-    if blind:
-        return NAME
-
-    return '%s%s%s' % (Fore.BLUE, NAME, Fore.RESET)
-
-
-def version(blind: bool = False) -> str:
-    if blind:
-        return VERSION
-
-    return '%s%s%s' % (Fore.BLUE, VERSION, Fore.RESET)
-
-
-def platform(blind: bool = False) -> str:
-    import platform
-
-    if blind:
-        return '(%s)' % platform.platform()
-
-    return '%s(%s)%s' % (Style.DIM, platform.platform(), Style.RESET_ALL)
-
-
-def command(name: str, blind: bool = False) -> str:
-    if blind:
-        return '"%s"' % name
-
-    return '%s"%s"%s' % (Fore.YELLOW, name, Fore.RESET)
-
-
-def prompt(blind: bool = False) -> str:
-    if blind:
-        return '\n?- '
-
-    else:
-        return '\n%s?-%s ' % (Style.DIM, Style.RESET_ALL)
-
-
-def intro(blind: bool = False) -> str:
-    return """Welcome to %s %s %s
-%s comes with ABSOLUTELY NO WARRANTY. This is free software.
-Type %s, %s, %s and %s for more information.""" % (
-        program(blind), version(blind), platform(blind), program(blind),
-        command('help', blind), command('copyright', blind), command('credits', blind), command('license', blind)
-    )
+YEAR = 2018
+AUTHOR = 'Stefano Bragaglia'
 
 
 class DefeasibleShell(Cmd):
 
     def __init__(self, namespace: Namespace):
         super().__init__()
+        self.filename = None
+        self.program = None
+        self.interpreter = None
+
         self.blind = namespace.blind
         self.intro = intro(self.blind)
-        self.prompt = prompt(blind=self.blind)
+        self.copyright = copyright_(self.blind)
+        self.credits = credits_(self.blind)
+        self.license = license_(self.blind)
+        self.prompt = render_as('?- ', MUTED, self.blind)
         self.ruler = ''
+
+        # self.doc_header = 'Cmd.doc_header'
+        # self.misc_header = 'Cmd.misc_header'
+        # self.undoc_header = 'Cmd.undoc_header'
+
+        if namespace.filename:
+            self.onecmd('load %s' % namespace.filename)
+        else:
+            self.onecmd('reset')
+
+    def help_language(self):
+        """Some hints about the language"""
+        pass
+
+    def help_interpreter(self):
+        """Some hints about the interpreter"""
+        pass
 
     def do_halt(self, arg):
         """Stop this session and close the interpreter"""
-        # print('Thank you for using Turtle')
-        # self.close()
-        # bye()
-        return True
+        if arg:
+            self.handle(arg)
+        else:
+            return True
+
+    def do_copyright(self, arg):
+        """Display copyright information"""
+        if arg:
+            self.handle(arg)
+        else:
+            print(self.copyright)
+
+    def do_credits(self, arg):
+        """Display credits information"""
+        if arg:
+            self.handle(arg)
+        else:
+            print(self.credits)
+
+    def do_license(self, arg):
+        """Display license"""
+        if arg:
+            self.handle(arg)
+        else:
+            print(self.license)
+
+    def do_listing(self, arg):
+        """List the rules of the current program"""
+        if arg:
+            self.handle(arg)
+        else:
+            print(Renderer.render(self.program, blind=self.blind) + '\n')
+
+    def do_ground(self, arg):
+        """List the rules of the current grounded program"""
+        if arg:
+            self.handle(arg)
+        else:
+            print(Renderer.render(self.interpreter.program, blind=self.blind) + '\n')
+
+    def do_beautify(self, arg):
+        if arg:
+            self.handle(arg)
+        else:
+            pass
+
+    def do_reset(self, arg):
+        """Start a new session interpreter to a new session"""
+        if arg:
+            self.handle(arg)
+        else:
+            self.filename = self.get_filename()
+            self.program = Program([])
+            self.interpreter = Interpreter(self.program)
+
+    def do_load(self, filename):
+        """Load the program from the file with given name"""
+        try:
+            with open(filename, 'r') as file:
+                content = file.read()
+        except Exception as e:
+            self.error(str(e))
+            return
+
+        try:
+            program = Program.parse(content)
+        except Exception as e:
+            self.error(str(e))
+            return
+
+        try:
+            interpreter = Interpreter(program)
+        except Exception as e:
+            self.error(str(e))
+            return
+
+        self.filename = filename
+        self.program = program
+        self.interpreter = interpreter
+
+    def do_save(self, filename: str = None):
+        """Save the program to the file previously specified or to the file with given name"""
+
+        if not filename and not self.filename:
+            self.error("'filename' required")
+            return
+
+        if filename and os.path.exists(filename):
+            self.error("cannot overwrite a file that already exists: %s" % filename)
+            return
+
+        self.filename = filename
+        self.save(self.filename)
+
+    def do_edit(self, arg):
+        """Edit the current program in an external editor (nano)"""
+        self.save(self.filename)
+        subprocess.call(['nano', self.filename])
+
+    def do_derive(self, arg):
+        """Return the derivation for the given literal"""
+        literal = Literal.parse(arg)
+        for derivation in self.interpreter.get_derivations(literal):
+            print('\t', Renderer.render_derivation(derivation, blind=self.blind))
+
+    def default(self, line):
+        match = re.search(r'\[(.*)\]', line)
+        if match:
+            filename = match.group(1).strip()
+            self.onecmd('load %s' % filename)
+
+        else:
+            self.error('Unknown syntax: %s' % line)
+
+    @staticmethod
+    def get_filename() -> str:
+        i = 0
+        while True:
+            filename = os.path.join(os.getcwd(), 'defeasible_%d.pl' % i)
+            if not os.path.exists(filename):
+                return filename
+            i += 1
+
+    def save(self, filename: str):
+        try:
+            with open(filename, 'w') as file:
+                file.write(repr(self.program))
+        except Exception as e:
+            self.error(str(e))
+
+    def handle(self, arg):
+        from arpeggio import ParserPython
+        from arpeggio import visit_parse_tree
+        from defeasible.language.grammar import comment
+        from defeasible.language.grammar import nothing
+        from defeasible.language.visitor import DefeasibleVisitor
+
+        parser = ParserPython(nothing, comment_def=comment)
+        try:
+            parse_tree = parser.parse(arg)
+        except Exception as e:
+            self.error(str(e))
+        else:
+            visit_parse_tree(parse_tree, DefeasibleVisitor())
+
+    def error(self, message: str):
+        print('\n'.join(line for line in [
+            '%s: %s',
+            '',
+        ]) % (render_as('ERROR', URL, self.blind),
+              render_as(message, COMMAND, self.blind)))
+
+
+def intro(blind: bool = False) -> str:
+    import platform
+
+    return '\n'.join(line for line in [
+        'Welcome to %s %s %s',
+        '%s comes with ABSOLUTELY NO WARRANTY. This is free software.',
+        'Type %s, %s, %s and %s for more information.',
+    ]) % (render_as(PROGRAM, MAIN, blind),
+          render_as(VERSION, MAIN, blind),
+          render_as('(%s)' % platform.platform(), MUTED, blind),
+          render_as(PROGRAM, MAIN, blind),
+          render_as('"help"', COMMAND, blind),
+          render_as('"copyright"', COMMAND, blind),
+          render_as('"credits"', COMMAND, blind),
+          render_as('"license"', COMMAND, blind))
+
+
+def copyright_(blind: bool = False) -> str:
+    return '\n'.join(line for line in [
+        'Copyright (c) %s, %s',
+        'All rights reserved. %s',
+    ]) % (render_as(2018, VALUE, blind),
+          render_as('Stefano Bragaglia', PERSON, blind),
+          render_as('https://github.com/stefano-bragaglia/DefeasiblePython', URL, blind))
+
+
+def credits_(blind: bool = False) -> str:
+    return '\n'.join(line for line in [
+        'This work was inspired by %s and %s. %s',
+        '%s in %s, ',
+        '%s, %s. %s',
+    ]) % (render_as('A. García', PERSON, blind),
+          render_as('G. Simari', PERSON, blind),
+          render_as('"Defeasible Logic Programming:', TITLE, blind),
+          render_as('An Argumentative Approach,"', TITLE, blind),
+          render_as('Theory and Practice of Logic Programming', LOCATION, blind),
+          render_as('4(1):95–138', VALUE, blind),
+          render_as(2004, VALUE, blind),
+          render_as('https://arxiv.org/abs/cs/0302029', URL, blind))
+
+
+def license_(blind: bool = False) -> str:
+    return '\n'.join(line for line in [
+        '%s is covered by the %s:',
+        '',
+        'Redistribution and use in source and binary forms, with or without',
+        'modification, are permitted provided that the following conditions are met:',
+        '',
+        '%s Redistributions of source code must retain the above copyright notice, this',
+        '  list of conditions and the following disclaimer.',
+        '',
+        '%s Redistributions in binary form must reproduce the above copyright notice,',
+        '  this list of conditions and the following disclaimer in the documentation',
+        '  and/or other materials provided with the distribution.',
+        '',
+        '%s',
+        '%s',
+        '%s',
+        '%s',
+        '%s',
+        '%s',
+        '%s',
+        '%s',
+        '%s',
+        '%s',
+    ]) % (render_as(PROGRAM, MAIN, blind),
+          render_as('Simplified BSD license', COMMAND, blind),
+          render_as('*', URL, blind),
+          render_as('*', URL, blind),
+          render_as('THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \'AS IS\'', VALUE, blind),
+          render_as('AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE', VALUE, blind),
+          render_as('IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE', VALUE,
+                    blind),
+          render_as('DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE', VALUE, blind),
+          render_as('FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL', VALUE, blind),
+          render_as('DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR', VALUE, blind),
+          render_as('SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER', VALUE, blind),
+          render_as('CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,', VALUE, blind),
+          render_as('OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE', VALUE, blind),
+          render_as('OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.', VALUE, blind))
 
 
 if __name__ == '__main__':

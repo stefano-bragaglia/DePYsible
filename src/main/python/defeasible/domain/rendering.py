@@ -1,8 +1,31 @@
 import re
+from collections import namedtuple
 from typing import Any
 from typing import Set
 
-from defeasible.domain.interpretation import Answer
+from colorama import Back
+from colorama import Fore
+from colorama import Style
+
+from defeasible.domain.interpretation import Answer, Derivation
+
+Format = namedtuple('Format', 'back fore style')
+
+MAIN = Format(Back.RESET, Fore.BLUE, Style.NORMAL)
+COMMAND = Format(Back.RESET, Fore.YELLOW, Style.NORMAL)
+LOCATION = Format(Back.RESET, Fore.GREEN, Style.NORMAL)
+PERSON = Format(Back.RESET, Fore.YELLOW, Style.NORMAL)
+TITLE = Format(Back.RESET, Fore.BLUE, Style.NORMAL)
+URL = Format(Back.RESET, Fore.RED, Style.NORMAL)
+VALUE = Format(Back.RESET, Fore.CYAN, Style.NORMAL)
+MUTED = Format(Back.RESET, Fore.LIGHTWHITE_EX, Style.DIM)
+
+
+def render_as(content: Any, format: Format, blind: bool = False) -> str:
+    if blind:
+        return content
+
+    return '%s%s%s%s%s%s%s' % (format.back, format.fore, format.style, content, Back.RESET, Fore.RESET, Style.RESET_ALL)
 
 
 class UncoveredClassException(Exception):
@@ -226,7 +249,6 @@ class Renderer:
         from defeasible.domain.definitions import Literal
         from defeasible.domain.definitions import Rule
         from defeasible.domain.definitions import Program
-        from defeasible.domain.definitions import Derivation
         from defeasible.domain.definitions import Structure
 
         if type(obj) in [bool, int, float, str]:
@@ -375,18 +397,17 @@ class Renderer:
     def render_derivation(cls, derivation: 'Derivation', uncovered: bool = False, blind: bool = False) -> str:
         from defeasible.domain.definitions import RuleType
 
-        if len(derivation.rules) == 0:
-            return cls.empty(uncovered, blind)
+        explanation = cls.comma(uncovered=uncovered, blind=blind).join(
+            cls.render_literal(rule.head, uncovered=uncovered, blind=blind)
+            for rule in reversed(derivation.rules)
+        )
+        if any(rule.type == RuleType.DEFEASIBLE for rule in derivation.rules):
+            symbol = cls.defeasibly(uncovered=uncovered, blind=blind)
+        else:
+            symbol = cls.strictly(uncovered=uncovered, blind=blind)
+        derivable = cls.render_literal(derivation.rules[0].head, uncovered=uncovered, blind=blind)
 
-        if len(derivation.rules) == 1:
-            return repr(derivation.rules[0].head)
-
-        sequence = ', '.join(cls.render_literal(rule.head, uncovered, blind) for rule in derivation.rules[:-1])
-        conclusion = cls.render_literal(derivation.rules[-1].head, uncovered, blind)
-        if derivation.type == RuleType.DEFEASIBLE:
-            return '%s %s %s' % (sequence, cls.defeasibly(uncovered, blind), conclusion)
-
-        return '%s %s %s' % (sequence, cls.strictly(uncovered, blind), conclusion)
+        return '%s %s %s' % (explanation, symbol, derivable)
 
     @classmethod
     def render_structure(cls, structure: 'Structure', uncovered: bool = False, blind: bool = False) -> str:
