@@ -189,7 +189,6 @@ class Rule:
 class Program:
     rules: List[Rule]
     _ground: 'Program' = None
-    _parent: 'Program' = None
     _strict: Set[Rule] = None
     _defeasible: Set[Rule] = None
 
@@ -301,6 +300,5 @@ class Program:
 
         if not self._ground:
             self._ground = Program(fire_rules(self))
-            self._ground._parent = self
 
         return self._ground

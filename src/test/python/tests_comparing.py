@@ -2,8 +2,10 @@ from unittest import TestCase
 
 from assertpy import assert_that
 
-from defeasible.domain.definitions import Literal, Program, Rule
-from defeasible.domain.interpretation import Derivation, Interpreter, Structure
+from defeasible.domain.definitions import Program
+from defeasible.domain.definitions import Rule
+from defeasible.domain.interpretation import Derivation
+from defeasible.domain.interpretation import Interpreter
 
 
 class TestComparing(TestCase):

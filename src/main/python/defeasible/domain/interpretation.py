@@ -1,9 +1,18 @@
 from enum import Enum
-from typing import Dict, Iterable, List, Optional, Set, Tuple
+from typing import Dict
+from typing import Iterable
+from typing import List
+from typing import Optional
+from typing import Set
+from typing import Tuple
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+from dataclasses import field
 
-from defeasible.domain.definitions import Literal, Program, Rule, RuleType
+from defeasible.domain.definitions import Literal
+from defeasible.domain.definitions import Program
+from defeasible.domain.definitions import Rule
+from defeasible.domain.definitions import RuleType
 
 
 @dataclass(init=True, repr=False, eq=True, order=True)
@@ -211,13 +220,6 @@ class DialecticalTree:
         self.type = type
         self.parent = parent
         self.children = set()
-        # self._discordance = {**self.parent._concordance} if self.parent else {}
-        # if not self.parent or not self.parent._discordance:
-        #     self._concordance = as_index(self.content.derivation.interpreter.program.rules, RuleType.STRICT)
-        # else:
-        #     self._concordance = {**self.parent.parent._discordance}
-        # for rule in self.content.argument:
-        #     self._concordance.setdefault(rule.head, set()).add(rule)
 
     def __hash__(self) -> int:
         return hash(repr(self))
@@ -321,9 +323,6 @@ class Interpreter:
         self._literals = None
         self._structures = None
         self._answers = None
-        # contradiction = self.is_contradictory()
-        # if contradiction:
-        #     raise ValueError('This program is contradictory on %s' % contradiction)
 
     def __repr__(self) -> str:
         return repr(self.program)
@@ -447,7 +446,7 @@ def disagree(literal1: Literal, literal2: Literal, rules: Iterable[Rule]) -> boo
     index.setdefault(literal1, set()).add(literal1.as_fact())
     index.setdefault(literal2, set()).add(literal2.as_fact())
 
-    return is_contradictory(index)
+    return bool(is_contradictory(index))
 
 
 def as_index(rules: Iterable[Rule], mode: RuleType = RuleType.DEFEASIBLE) -> Index:
@@ -498,9 +497,6 @@ def get_derivations(literal: Literal, index: Index) -> List[List[Rule]]:
                     derivations.append(partial)
 
     return derivations
-
-
-# Summary = Dict[Structure, Dict[DefeaterType, Dict[Structure, Structure]]]
 
 
 def recurse(argument: Structure, summary: Summary):

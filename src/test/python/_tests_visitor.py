@@ -1,6 +1,8 @@
 from unittest import TestCase
 
-from arpeggio import NoMatch, ParserPython, visit_parse_tree
+from arpeggio import NoMatch
+from arpeggio import ParserPython
+from arpeggio import visit_parse_tree
 from assertpy import assert_that
 
 

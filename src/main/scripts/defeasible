@@ -11,10 +11,19 @@ import colorama
 import coloredlogs
 import verboselogs
 
-from defeasible import main
-from defeasible.domain.definitions import Program, Literal
+from defeasible.domain.definitions import Literal
+from defeasible.domain.definitions import Program
 from defeasible.domain.interpretation import Interpreter
-from defeasible.domain.rendering import COMMAND, LOCATION, MAIN, MUTED, PERSON, Renderer, TITLE, URL, VALUE, render_as
+from defeasible.domain.rendering import COMMAND
+from defeasible.domain.rendering import LOCATION
+from defeasible.domain.rendering import MAIN
+from defeasible.domain.rendering import MUTED
+from defeasible.domain.rendering import PERSON
+from defeasible.domain.rendering import Renderer
+from defeasible.domain.rendering import TITLE
+from defeasible.domain.rendering import URL
+from defeasible.domain.rendering import VALUE
+from defeasible.domain.rendering import render_as
 
 colorama.init()
 verboselogs.install()
@@ -163,19 +172,61 @@ class DefeasibleShell(Cmd):
         subprocess.call(['nano', self.filename])
 
     def do_derive(self, arg):
-        """Return the derivation for the given literal"""
+        """Return the derivations for the given literal (if any)"""
         literal = Literal.parse(arg)
-        for derivation in self.interpreter.get_derivations(literal):
-            print('\t', Renderer.render_derivation(derivation, blind=self.blind))
+        derivations = self.interpreter.get_derivations(literal)
+        if not derivations:
+            print('    ', Renderer.empty(self.blind))
+        else:
+            for derivation in derivations:
+                print('    ', Renderer.render_derivation(derivation, blind=self.blind))
+
+    def do_argue(self, arg):
+        """Return the arguments for the given literal (if any)"""
+        literal = Literal.parse(arg)
+        derivations = self.interpreter.get_derivations(literal)
+        if not derivations:
+            print('    ', Renderer.empty(self.blind))
+        else:
+            for derivation in derivations:
+                structure = derivation.get_structure()
+                print('    ', Renderer.render_structure(structure, blind=self.blind))
 
     def default(self, line):
         match = re.search(r'\[(.*)\]', line)
         if match:
             filename = match.group(1).strip()
-            self.onecmd('load %s' % filename)
+            self.do_load(filename)
 
         else:
-            self.error('Unknown syntax: %s' % line)
+            try:
+                parsed = Program.parse(line)
+            except Exception as e:
+                try:
+                    literal = Literal.parse(line)
+                except Exception as e:
+                    self.error(str(e))
+                else:
+                    answer, warrant = self.interpreter.query(literal)
+                    print(Renderer.render(answer, blind=self.blind))
+                    if warrant:
+                        for rule in sorted(warrant):
+                            print('    ', Renderer.render(rule, blind=self.blind))
+            else:
+                rules = set(self.program.rules)
+                rules = list(rules.union(parsed.rules))
+                try:
+                    program = Program(rules)
+                except Exception as e:
+                    self.error(str(e))
+                else:
+                    try:
+                        interpreter = Interpreter(program)
+                    except Exception as e:
+                        self.error(str(e))
+                    else:
+                        self.program = program
+                        self.interpreter = interpreter
 
     @staticmethod
     def get_filename() -> str:
@@ -306,7 +357,5 @@ if __name__ == '__main__':
 
     cli = DefeasibleShell(namespace)
     cli.cmdloop()
-
-    main(blind=namespace.blind)
 
     _logger.verbose('Done.')

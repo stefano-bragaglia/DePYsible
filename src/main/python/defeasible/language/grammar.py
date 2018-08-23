@@ -1,4 +1,8 @@
-from arpeggio import EOF, OneOrMore, Optional, RegExMatch, ZeroOrMore
+from arpeggio import EOF
+from arpeggio import OneOrMore
+from arpeggio import Optional
+from arpeggio import RegExMatch
+from arpeggio import ZeroOrMore
 
 
 def nothing():

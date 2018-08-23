@@ -2,8 +2,12 @@ from unittest import TestCase
 
 from assertpy import assert_that
 
-from defeasible.domain.definitions import Literal, Program, Rule, RuleType
-from defeasible.domain.interpretation import Derivation, Interpreter
+from defeasible.domain.definitions import Literal
+from defeasible.domain.definitions import Program
+from defeasible.domain.definitions import Rule
+from defeasible.domain.definitions import RuleType
+from defeasible.domain.interpretation import Derivation
+from defeasible.domain.interpretation import Interpreter
 
 
 class TestLanguage(TestCase):
@@ -172,8 +176,10 @@ class TestLanguage(TestCase):
         """)
         i = Interpreter(p)
         expected = {
-            Derivation([Rule.parse('flies(tina) -< chicken(tina), scared(tina).'), Rule.parse('chicken(tina).'), Rule.parse('scared(tina).')], i),
-            Derivation([Rule.parse('flies(tina) -< bird(tina).'), Rule.parse('bird(tina) <- chicken(tina).'), Rule.parse('chicken(tina).')], i),
+            Derivation([Rule.parse('flies(tina) -< chicken(tina), scared(tina).'), Rule.parse('chicken(tina).'),
+                        Rule.parse('scared(tina).')], i),
+            Derivation([Rule.parse('flies(tina) -< bird(tina).'), Rule.parse('bird(tina) <- chicken(tina).'),
+                        Rule.parse('chicken(tina).')], i),
         }
         result = i.get_derivations(Literal.parse('flies(tina)'), RuleType.DEFEASIBLE)
 

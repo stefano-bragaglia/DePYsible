@@ -1,9 +1,13 @@
 from unittest import TestCase
 
 from arpeggio import NoMatch
-from assertpy import assert_that, fail
+from assertpy import assert_that
+from assertpy import fail
 
-from defeasible.domain.definitions import Atom, Literal, Rule, RuleType
+from defeasible.domain.definitions import Atom
+from defeasible.domain.definitions import Literal
+from defeasible.domain.definitions import Rule
+from defeasible.domain.definitions import RuleType
 
 
 class TestAtom(TestCase):

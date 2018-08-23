@@ -1,13 +1,17 @@
 import json
 import re
-from typing import List, Union
+from typing import List
+from typing import Union
 
-from arpeggio import NonTerminal, PTNodeVisitor, Terminal
+from arpeggio import NonTerminal
+from arpeggio import PTNodeVisitor
+from arpeggio import Terminal
 
-from defeasible import Program
-from defeasible.domain.definitions import RuleType, Rule
-from defeasible.domain.definitions import Literal
 from defeasible.domain.definitions import Atom
+from defeasible.domain.definitions import Literal
+from defeasible.domain.definitions import Program
+from defeasible.domain.definitions import Rule
+from defeasible.domain.definitions import RuleType
 
 Node = Union[Terminal, NonTerminal]
 
