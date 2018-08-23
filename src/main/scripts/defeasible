@@ -62,13 +62,22 @@ class DefeasibleShell(Cmd):
         else:
             self.onecmd('reset')
 
-    def help_language(self):
-        """Some hints about the language"""
-        pass
+    # TODO Print info on the language
+    # def do_language(self):
+    #     """Some hints about the language"""
+    #     pass
 
-    def help_interpreter(self):
-        """Some hints about the interpreter"""
-        pass
+    # TODO Print info on how to use the interpreter
+    # def help_interpreter(self):
+    #     """Some hints about the interpreter"""
+    #     pass
+
+    # TODO Change the Program
+    # def do_beautify(self, arg):
+    #     if arg:
+    #         self.handle(arg)
+    #     else:
+    #         pass
 
     def do_halt(self, arg):
         """Stop this session and close the interpreter"""
@@ -97,26 +106,6 @@ class DefeasibleShell(Cmd):
             self.handle(arg)
         else:
             print(self.license)
-
-    def do_listing(self, arg):
-        """List the rules of the current program"""
-        if arg:
-            self.handle(arg)
-        else:
-            print(Renderer.render(self.program, blind=self.blind) + '\n')
-
-    def do_ground(self, arg):
-        """List the rules of the current grounded program"""
-        if arg:
-            self.handle(arg)
-        else:
-            print(Renderer.render(self.interpreter.program, blind=self.blind) + '\n')
-
-    def do_beautify(self, arg):
-        if arg:
-            self.handle(arg)
-        else:
-            pass
 
     def do_reset(self, arg):
         """Start a new session interpreter to a new session"""
@@ -170,6 +159,20 @@ class DefeasibleShell(Cmd):
         """Edit the current program in an external editor (nano)"""
         self.save(self.filename)
         subprocess.call(['nano', self.filename])
+
+    def do_listing(self, arg):
+        """List the rules of the current program"""
+        if arg:
+            self.handle(arg)
+        else:
+            print(Renderer.render(self.program, blind=self.blind) + '\n')
+
+    def do_ground(self, arg):
+        """List the rules of the current grounded program"""
+        if arg:
+            self.handle(arg)
+        else:
+            print(Renderer.render(self.interpreter.program, blind=self.blind) + '\n')
 
     def do_derive(self, arg):
         """Return the derivations for the given literal (if any)"""
@@ -273,7 +276,7 @@ def intro(blind: bool = False) -> str:
     return '\n'.join(line for line in [
         'Welcome to %s %s %s',
         '%s comes with ABSOLUTELY NO WARRANTY. This is free software.',
-        'Type %s, %s, %s and %s for more information.',
+        'Type %s, %s, %s and %s, or %s for more information.',
     ]) % (render_as(PROGRAM, MAIN, blind),
           render_as(VERSION, MAIN, blind),
           render_as('(%s)' % platform.platform(), MUTED, blind),
@@ -281,7 +284,8 @@ def intro(blind: bool = False) -> str:
           render_as('"help"', COMMAND, blind),
           render_as('"copyright"', COMMAND, blind),
           render_as('"credits"', COMMAND, blind),
-          render_as('"license"', COMMAND, blind))
+          render_as('"license"', COMMAND, blind),
+          render_as('"language"', COMMAND, blind))
 
 
 def copyright_(blind: bool = False) -> str:
