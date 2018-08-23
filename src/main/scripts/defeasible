@@ -50,7 +50,7 @@ class DefeasibleShell(Cmd):
         self.copyright = copyright_(self.blind)
         self.credits = credits_(self.blind)
         self.license = license_(self.blind)
-        self.prompt = render_as('?- ', MUTED, self.blind)
+        self.prompt = render_as('\n?- ', MUTED, self.blind)
         self.ruler = ''
 
         # self.doc_header = 'Cmd.doc_header'
