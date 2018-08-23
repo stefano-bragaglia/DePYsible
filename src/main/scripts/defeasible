@@ -50,7 +50,7 @@ class DefeasibleShell(Cmd):
         self.copyright = copyright_(self.blind)
         self.credits = credits_(self.blind)
         self.license = license_(self.blind)
-        self.prompt = render_as('\n?- ', MUTED, self.blind)
+        self.prompt = '\n' + render_as('?- ', MUTED, self.blind)
         self.ruler = ''
 
         # self.doc_header = 'Cmd.doc_header'
@@ -165,14 +165,14 @@ class DefeasibleShell(Cmd):
         if arg:
             self.handle(arg)
         else:
-            print(Renderer.render(self.program, blind=self.blind) + '\n')
+            print(Renderer.render(self.program, blind=self.blind))
 
     def do_ground(self, arg):
         """List the rules of the current grounded program"""
         if arg:
             self.handle(arg)
         else:
-            print(Renderer.render(self.interpreter.program, blind=self.blind) + '\n')
+            print(Renderer.render(self.interpreter.program, blind=self.blind))
 
     def do_derive(self, arg):
         """Return the derivations for the given literal (if any)"""
