@@ -171,6 +171,92 @@ referenced by:
 referenced by:
 * [term](#term)
 
+#### salience
+![salience](src/resources/images/salience.png)
+
+    salience ::= '@' INTEGER
+
+referenced by:
+* [defeasible](#defeasible)
+* [strict](#strict)
+
+#### TRUE
+![TRUE](src/resources/images/TRUE.png)
+
+    TRUE     ::= [Tt] [Rr] [Uu] [Ee]
+
+referenced by:
+* [boolean](#boolean)
+
+#### FALSE
+![FALSE](src/resources/images/FALSE.png)
+
+    FALSE    ::= [Ff] [Aa] [Ll] [Ss] [Ee]
+
+referenced by:
+* [boolean](#boolean)
+
+#### REAL
+![REAL](src/resources/images/REAL.png)
+
+    REAL     ::= '-'? [0-9]* '.' [0-9]+ ( 'E' '-'? [0-9]+ )?
+
+referenced by:
+* [number](#number)
+
+#### INTEGER
+![INTEGER](src/resources/images/INTEGER.png)
+
+    INTEGER  ::= '-'? [0-9]+
+
+referenced by:
+* [number](#number)
+* [salience](#salience)
+
+#### DOUBLE_QUOTE
+![DOUBLE_QUOTE](src/resources/images/DOUBLE_QUOTE.png)
+
+    DOUBLE_QUOTE 
+             ::= "'" [^']* "'"
+
+referenced by:
+* [functor](#functor)
+* [string](#string)
+
+#### SINGLE_QUOTE
+![SINGLE_QUOTE](src/resources/images/SINGLE_QUOTE.png)
+
+    SINGLE_QUOTE 
+             ::= '"' [^"]* '"'
+
+referenced by:
+* [functor](#functor)
+* [string](#string)
+
+#### IDENTIFIER
+![IDENTIFIER](src/resources/images/IDENTIFIER.png)
+
+    IDENTIFIER 
+             ::= [a-z] [a-z_A-Z0-9]*
+
+referenced by:
+* [functor](#functor)
+* [term](#term)
+
+#### VARIABLE
+![VARIABLE](src/resources/images/VARIABLE.png)
+
+    VARIABLE ::= [_A-Z] [a-z_A-Z0-9]*
+
+referenced by:
+* [term](#term)
+
+#### COMMENT
+![COMMENT](src/resources/images/COMMENT.png)
+
+    COMMENT  ::= '%' .* 'EOL'
+
+no references
 
 
 ### Future Works
