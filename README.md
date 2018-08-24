@@ -13,12 +13,6 @@ An implementation of Defeasible Logic in Python
 
 ![Screenshot](src/resources/Screenshot.png)
 
-[//]: # "## Contributing"
-
-[//]: # "Bug reports and pull requests are welcome on GitHub at [twitterz.api](https://github.com/stefano-bragaglia/DefeasiblePython) repository."
-[//]: # "This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the" 
-[//]: # "[Contributor Covenant](http://contributor-covenant.org) code of conduct."
-
 ### Grammar
 
     program      ::= rule* 'EOF'
@@ -264,6 +258,13 @@ no references
 ### Future Works
 
 Include _presumptions_, _negation_as_failure_ (standard negation) and _concordance_ check.
+
+[//]: # "### Contributing"
+
+[//]: # "Bug reports and pull requests are welcome on GitHub at [twitterz.api](https://github.com/stefano-bragaglia/DefeasiblePython) repository."
+[//]: # "This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the" 
+[//]: # "[Contributor Covenant](http://contributor-covenant.org) code of conduct."
+
 
 ### License
 
