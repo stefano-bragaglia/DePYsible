@@ -51,29 +51,44 @@ An implementation of Defeasible Logic in Python
     literal      ::= negation? atom
     negation     ::= '~'+
     atom         ::= functor ( '(' terms? ')' )?
-    functor      ::= double_quote | single_quote | identifier
+    functor      ::= DOUBLE_QUOTE | SINGLE_QUOTE | IDENTIFIER
     terms        ::= term ( ',' term )*
-    term         ::= boolean | number | string | identifier | variable
-    boolean      ::= 'TRUE' | 'FALSE'
-    number       ::= real | integer
-    string       ::= double_quote | single_quote
-    salience     ::= '@' integer
+    term         ::= boolean | number | string | IDENTIFIER | VARIABLE
+    boolean      ::= TRUE | FALSE
+    number       ::= REAL | INTEGER
+    string       ::= DOUBLE_QUOTE | SINGLE_QUOTE
+    salience     ::= '@' INTEGER
 
-    real         ::= '-'? [0-9]* '.' [0-9]+ ('E' '-'? [0-9]+)?
-    integer      ::= '-'? [0-9]+
-    double_quote ::= '"' [^"]* '"'
-    single_quote ::= "'" [^']* "'"
-    identifier   ::= [a-z][a-z_A-Z0-9]*
-    variable     ::= [_A-Z][a-z_A-Z0-9]*
-    comment      ::= '%' .* 'EOL'
+    TRUE         ::= [Tt] [Rr] [Uu] [Ee]
+    FALSE        ::= [Ff] [Aa] [Ll] [Ss] [Ee]
+    REAL         ::= '-'? [0-9]* '.' [0-9]+ ('E' '-'? [0-9]+)?
+    INTEGER      ::= '-'? [0-9]+
+    DOUBLE_QUOTE ::= '"' [^"]* '"'
+    SINGLE_QUOTE ::= "'" [^']* "'"
+    IDENTIFIER   ::= [a-z][a-z_A-Z0-9]*
+    VARIABLE     ::= [_A-Z][a-z_A-Z0-9]*
+    COMMENT      ::= '%' .* 'EOL'
 
 
 ##### program
-![program](http://example.com/images/program.png)
+![program](src/resources/images/program.png)
 
+    program  ::= rule* 'EOF'
+
+no references
+
+##### rule
+![rule](src/resources/images/rule.png)
+
+    rule     ::= defeasible
+               | strict
+
+referenced by:
+
+* [program](#program)
 ### Future Works
 
-Include presumptions, negation_as_failure (standard negation) and concordance check.
+Include __presumptions__, negation_as_failure (standard negation) and concordance check.
 
 ### License
 
