@@ -13,7 +13,7 @@ An implementation of Defeasible Logic in Python
 
 ![Screenshot](src/resources/Screenshot.png)
 
-### Grammar
+## Grammar
 
     program      ::= rule* 'EOF'
     rule         ::= defeasible | strict 
@@ -43,14 +43,14 @@ An implementation of Defeasible Logic in Python
     COMMENT      ::= '%' .* 'EOL'
 
 
-#### program
+### program
 ![program](src/resources/images/program.png)
 
     program  ::= rule* 'EOF'
 
 no references
 
-#### rule
+### rule
 ![rule](src/resources/images/rule.png)
 
     rule     ::= defeasible
@@ -59,7 +59,7 @@ no references
 referenced by:
 * [program](#program)
 
-#### defeasible
+### defeasible
 ![defeasible](src/resources/images/defeasible.png)
 
     defeasible
@@ -68,7 +68,7 @@ referenced by:
 referenced by:
 * [rule](#rule)
 
-#### strict
+### strict
 ![strict](src/resources/images/strict.png)
 
     strict   ::= literal ( '<-' literals? )? salience? '.'
@@ -76,7 +76,7 @@ referenced by:
 referenced by:
 * [rule](#rule)
 
-#### literals
+### literals
 ![literals](src/resources/images/literals.png)
 
     literals ::= literal ( ',' literal )*
@@ -85,7 +85,7 @@ referenced by:
 * [defeasible](#defeasible)
 * [strict](#strict)
 
-#### literal
+### literal
 ![literal](src/resources/images/literal.png)
 
     literal  ::= negation? atom
@@ -95,7 +95,7 @@ referenced by:
 * [literals](#literals)
 * [strict](#strict)
 
-#### negation
+### negation
 ![negation](src/resources/images/negation.png)
 
     negation ::= '~'+
@@ -103,7 +103,7 @@ referenced by:
 referenced by:
 * [literal](#literal)
 
-#### atom
+### atom
 ![atom](src/resources/images/atom.png)
 
     atom     ::= functor ( '(' terms? ')' )?
@@ -111,7 +111,7 @@ referenced by:
 referenced by:
 * [literal](#literal)
 
-#### functor
+### functor
 ![functor](src/resources/images/functor.png)
 
     functor  ::= DOUBLE_QUOTE
@@ -121,7 +121,7 @@ referenced by:
 referenced by:
 * [atom](#atom)
 
-#### terms
+### terms
 ![terms](src/resources/images/terms.png)
 
     terms    ::= term ( ',' term )*
@@ -129,7 +129,7 @@ referenced by:
 referenced by:
 * [atom](#atom)
 
-#### term
+### term
 ![term](src/resources/images/term.png)
 
     term     ::= boolean
@@ -141,7 +141,7 @@ referenced by:
 referenced by:
 * [terms](#terms)
 
-#### boolean
+### boolean
 ![boolean](src/resources/images/boolean.png)
 
     boolean  ::= TRUE
@@ -150,7 +150,7 @@ referenced by:
 referenced by:
 * [term](#term)
 
-#### number
+### number
 ![number](src/resources/images/number.png)
 
     number   ::= REAL
@@ -159,7 +159,7 @@ referenced by:
 referenced by:
 * [term](#term)
 
-#### string
+### string
 ![string](src/resources/images/string.png)
 
     string   ::= DOUBLE_QUOTE
@@ -168,7 +168,7 @@ referenced by:
 referenced by:
 * [term](#term)
 
-#### salience
+### salience
 ![salience](src/resources/images/salience.png)
 
     salience ::= '@' INTEGER
@@ -177,7 +177,7 @@ referenced by:
 * [defeasible](#defeasible)
 * [strict](#strict)
 
-#### TRUE
+### TRUE
 ![TRUE](src/resources/images/TRUE.png)
 
     TRUE     ::= [Tt] [Rr] [Uu] [Ee]
@@ -185,7 +185,7 @@ referenced by:
 referenced by:
 * [boolean](#boolean)
 
-#### FALSE
+### FALSE
 ![FALSE](src/resources/images/FALSE.png)
 
     FALSE    ::= [Ff] [Aa] [Ll] [Ss] [Ee]
@@ -193,7 +193,7 @@ referenced by:
 referenced by:
 * [boolean](#boolean)
 
-#### REAL
+### REAL
 ![REAL](src/resources/images/REAL.png)
 
     REAL     ::= '-'? [0-9]* '.' [0-9]+ ( 'E' '-'? [0-9]+ )?
@@ -201,7 +201,7 @@ referenced by:
 referenced by:
 * [number](#number)
 
-#### INTEGER
+### INTEGER
 ![INTEGER](src/resources/images/INTEGER.png)
 
     INTEGER  ::= '-'? [0-9]+
@@ -210,7 +210,7 @@ referenced by:
 * [number](#number)
 * [salience](#salience)
 
-#### DOUBLE_QUOTE
+### DOUBLE_QUOTE
 ![DOUBLE_QUOTE](src/resources/images/DOUBLE_QUOTE.png)
 
     DOUBLE_QUOTE 
@@ -220,7 +220,7 @@ referenced by:
 * [functor](#functor)
 * [string](#string)
 
-#### SINGLE_QUOTE
+### SINGLE_QUOTE
 ![SINGLE_QUOTE](src/resources/images/SINGLE_QUOTE.png)
 
     SINGLE_QUOTE 
@@ -230,7 +230,7 @@ referenced by:
 * [functor](#functor)
 * [string](#string)
 
-#### IDENTIFIER
+### IDENTIFIER
 ![IDENTIFIER](src/resources/images/IDENTIFIER.png)
 
     IDENTIFIER 
@@ -240,7 +240,7 @@ referenced by:
 * [functor](#functor)
 * [term](#term)
 
-#### VARIABLE
+### VARIABLE
 ![VARIABLE](src/resources/images/VARIABLE.png)
 
     VARIABLE ::= [_A-Z] [a-z_A-Z0-9]*
@@ -248,7 +248,7 @@ referenced by:
 referenced by:
 * [term](#term)
 
-#### COMMENT
+### COMMENT
 ![COMMENT](src/resources/images/COMMENT.png)
 
     COMMENT  ::= '%' .* 'EOL'
@@ -256,17 +256,17 @@ referenced by:
 no references
 
 
-### Future Works
+## Future Works
 
 Include _presumptions_, _negation_as_failure_ (standard negation) and _concordance_ check.
 
-[//]: # "### Contributing"
+[//]: # "## Contributing"
 
 [//]: # "Bug reports and pull requests are welcome on GitHub at [twitterz.api](https://github.com/stefano-bragaglia/DefeasiblePython) repository."
 [//]: # "This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the" 
 [//]: # "[Contributor Covenant](http://contributor-covenant.org) code of conduct."
 
 
-### License
+## License
 
 The project is covered by the [Simplified BSD license](https://opensource.org/licenses/BSD-2-Clause). 
