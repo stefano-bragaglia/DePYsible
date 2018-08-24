@@ -11,6 +11,8 @@
 
 An implementation of Defeasible Logic in Python
 
+![Screenshot](src/resources/Screenshot.png)
+
 [//]: # "## Contributing"
 
 [//]: # "Bug reports and pull requests are welcome on GitHub at [twitterz.api](https://github.com/stefano-bragaglia/DefeasiblePython) repository."
