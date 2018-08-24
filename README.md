@@ -39,6 +39,7 @@ An implementation of Defeasible Logic in Python
     SINGLE_QUOTE ::= "'" [^']* "'"
     IDENTIFIER   ::= [a-z][a-z_A-Z0-9]*
     VARIABLE     ::= [_A-Z][a-z_A-Z0-9]*
+    
     COMMENT      ::= '%' .* 'EOL'
 
 
