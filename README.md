@@ -18,7 +18,7 @@ An implementation of Defeasible Logic in Python
 [//]: # "[Contributor Covenant](http://contributor-covenant.org) code of conduct."
 
     program      = rule* eof
-    rule         = defeasible | strict ;
+    rule         = defeasible | strict 
     defeasible   = literal '-<' literals? salience? '.'
     strict       = literal ( '<-' literals? )? salience? '.'
     literals     = literal ( ',' literal )*
@@ -31,14 +31,49 @@ An implementation of Defeasible Logic in Python
     boolean      = 'TRUE' | 'FALSE'
     number       = real | integer
     string       = double_quote | single_quote
+    salience     = '@' integer
     
-    comment      = ?RegEx(%.*)?
     real         = ?RegEx(-?\d*\.\d+(E-?\d+)?)?
     integer      = ?RegEx(-?\d+)?
     double_quote = ?RegEx("[^"]*")? 
     single_quote = ?RegEx('[^']*')?
     identifier   = ?RegEx([a-z][a-zA-Z_0-9]*)?
     variable     = ?RegEx([_A-Z][a-zA-Z_0-9]*)?
+    comment      = ?RegEx(%.*)?
+
+### Grammar
+
+    program      ::= rule* 'EOF'
+    rule         ::= defeasible | strict 
+    defeasible   ::= literal '-<' literals? salience? '.'
+    strict       ::= literal ( '<-' literals? )? salience? '.'
+    literals     ::= literal ( ',' literal )*
+    literal      ::= negation? atom
+    negation     ::= '~'+
+    atom         ::= functor ( '(' terms? ')' )?
+    functor      ::= double_quote | single_quote | identifier
+    terms        ::= term ( ',' term )*
+    term         ::= boolean | number | string | identifier | variable
+    boolean      ::= 'TRUE' | 'FALSE'
+    number       ::= real | integer
+    string       ::= double_quote | single_quote
+    salience     ::= '@' integer
+
+    real         ::= '-'? [0-9]* '.' [0-9]+ ('E' '-'? [0-9]+)?
+    integer      ::= '-'? [0-9]+
+    double_quote ::= '"' [^"]* '"'
+    single_quote ::= "'" [^']* "'"
+    identifier   ::= [a-z][a-z_A-Z0-9]*
+    variable     ::= [_A-Z][a-z_A-Z0-9]*
+    comment      ::= '%' .* 'EOL'
+
+
+##### program
+![program](http://example.com/images/program.png)
+
+### Future Works
+
+Include presumptions, negation_as_failure (standard negation) and concordance check.
 
 ### License
 
