@@ -62,16 +62,6 @@ class DefeasibleShell(Cmd):
         else:
             self.onecmd('reset')
 
-    # TODO Print info on the language
-    # def do_language(self):
-    #     """Some hints about the language"""
-    #     pass
-
-    # TODO Print info on how to use the interpreter
-    # def help_interpreter(self):
-    #     """Some hints about the interpreter"""
-    #     pass
-
     # TODO Change the Program
     # def do_beautify(self, arg):
     #     if arg:
@@ -276,7 +266,7 @@ def intro(blind: bool = False) -> str:
     return '\n'.join(line for line in [
         'Welcome to %s %s %s',
         '%s comes with ABSOLUTELY NO WARRANTY. This is free software.',
-        'Type %s, %s, %s and %s, or %s for more information.',
+        'Type %s, %s, %s and %s for more information.',
     ]) % (render_as(PROGRAM, MAIN, blind),
           render_as(VERSION, MAIN, blind),
           render_as('(%s)' % platform.platform(), MUTED, blind),
@@ -285,7 +275,6 @@ def intro(blind: bool = False) -> str:
           render_as('"copyright"', COMMAND, blind),
           render_as('"credits"', COMMAND, blind),
           render_as('"license"', COMMAND, blind),
-          render_as('"language"', COMMAND, blind))
 
 
 def copyright_(blind: bool = False) -> str:
