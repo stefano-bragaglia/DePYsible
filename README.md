@@ -332,6 +332,3 @@ Include _presumptions_, _negation_as_failure_ (standard negation) and _concordan
 ## License
 
 The project is covered by the [Simplified BSD license](https://opensource.org/licenses/BSD-2-Clause). 
-
-
-[1]: Presumptions are not currently supported.
