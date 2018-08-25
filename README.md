@@ -13,7 +13,7 @@ An implementation of Defeasible Logic in Python
 
 ![Screenshot](src/resources/Screenshot.png)
 
-The problems in defeasible logic are expressed in first order logic.
+## The Language
 
 The minimal bit of information in __Defeasible Logic__ is the ___atom___.
 Each _atom_ consists of a ___functor___ and a possibly empty list of ___terms___.
@@ -25,7 +25,7 @@ The following, for example, are all valid atoms (and their arities): `atom` (0),
 This implementation of __Defeasible Logic__ supports ___strong negation___ (symbol: `~`).
 Given an atom (i.e.: `sky(blue)`), its _strong negation_ consists in its ___complement___ (`~sky(blue)`).
 From a practical point of view, a _complement_ is treated as a new atom that is false if the original atom is true, and vice versa.
-_Strong negation_ should not be confused with ___negation as failure___ (or _default negation_; currently not implemented).
+_Strong negation_ should not be confused with ___negation as failure___ (or _default negation_ ⎯ currently not implemented).
 From now on, we will refer to an _atom_ or its _complement_ as a __literal__.
 
 > ###### On negation 
@@ -48,28 +48,34 @@ The following rules are hence all valid:
 
 In [Defeasible Logic](https://en.wikipedia.org/wiki/Defeasible_logic), however, there are two kinds of _rules_: ___strict___ and ___defeasible___.
 
-A ___strict rule___ uses `<-` as entailment symbol and is a strong implication of a head from its body (_head if body_). 
+A ___strict rule___ uses `<-` as entailment symbol and is a strong implication of the head from its body (_the head is true if the body holds_). 
 A _strict rule_ with an empty body is called ___fact___ (the entailment symbol might be omitted).
 The above example then becomes:
 
     grandparent_of(X, Y) <- parent_of(X, Z), parent_of(Z, Y). 
-    % A strict rule, to be read as: 
-    % X is grandparent of Y if X parent of Z and Z parent of Y 
     
-    parent_of(abe, homer). parent_of(homer, bart). 
-    % Some facts
+    parent_of(abe, homer). 
+    parent_of(homer, bart). 
 
-A ___defeasible rule___, instead, is a possible weak implication of a head from its body that can be proved wrong (_presumably head if body_) and uses `-<` as entailment symbol.
-A ___defeasible rule___ with an empty body is called ___presumption___ (the entailment symbol can not be omitted) [ReadME] [1].
+A ___defeasible rule___, instead, is a possible weak implication of the head from its body that can be proved wrong (_the head os presumably true if the body holds_) and uses `-<` as entailment symbol.
+A ___defeasible rule___ with an empty body is called ___presumption___ (the entailment symbol can _not__ be omitted ti distinguish _presumptions_ from _facts_ ⎯ currently not supported anyway).
+
+    is_alias(X, Y) -< in_place(X, P, T), ~in_place(Y, P, T).
+    
+    in_place(wayne, mansion, night).  ~in_place(wayne, streets, night).  ~in_place(wayne, offices, night).  ~in_place(wayne, batcave, night).
+    in_place(wayne, offices, day).    ~in_place(wayne, streets, day).    ~in_place(wayne, mansion, day).    ~in_place(wayne, batcave, day).
+    
+    in_place(batman, streets, night). ~in_place(batman, mansion, night). ~in_place(batman, offices, night). ~in_place(batman, batcave, night).
+    in_place(batman, batcave, day).   ~in_place(batman, streets, day).   ~in_place(batman, mansion, day).   ~in_place(batman, offices, day).
+        
+A ___defeasible (logic) program___ is a possibly infinite set of _facts_, _strict rules_ and _defeasible rules_.
+_Defeasible programs_ are also denoted as (𝛱, 𝛥) where 𝛱 is the subset of _facts_ and _strict rules_ and 𝛥 the subset of _defeasible rules_ of the problem.
+A _defeasible program_ is ___schematic___ if at least one of its _rules_ contain _variables_, otherwise it is said to be ___ground___.
+
+The procedure for defeasible reasoning in this system assumes that _programs_ to be _ground_.
 
 
-Observation 4.1
-If n = 1, the body is empty but the head is not a fact but a presumption.
-Presumptions require the symbol for deasible implication to explicitly set them apart from facts:
-b -: .       (read as there are defeasible reasons to believe in b)
-
-
-## Grammar
+## The Grammar
 
     program      ::= rule* 'EOF'
     rule         ::= defeasible | strict 
