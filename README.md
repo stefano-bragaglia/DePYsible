@@ -26,10 +26,10 @@ Assuming that _Python 3.6.x (or later)_ has been successfully installed, _Virtua
 
     pip install virtualenv
 
-The instructions to create a virtual environment can be found in the section [Compiling DePYsible](#Compiling DePYsible) below. 
+The instructions to create a virtual environment can be found [below](#compiling-depysible).
+Assuming that a virtual environment is available in a folder named `.env`, it is activated by:
 
-
-Virtualenv to sandbox highly suggested.
+    source ./.env/bin/activate
 
 #### Obtaining DePYsible
 
