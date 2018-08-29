@@ -1,4 +1,4 @@
-# DefeasiblePython
+# DePYsible
 [![GitHub tag](https://img.shields.io/github/tag/stefano-bragaglia/DefeasiblePython.svg)](https://github.com/stefano-bragaglia/DefeasiblePython/tags)
 
 [![Contributors](https://img.shields.io/github/contributors/stefano-bragaglia/DefeasiblePython.svg)](https://github.com/stefano-bragaglia/DefeasiblePython/graphs/contributors)
@@ -9,9 +9,60 @@
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/stefano-bragaglia/DefeasiblePython.svg)](https://github.com/stefano-bragaglia/DefeasiblePython/pulls)
 [![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/stefano-bragaglia/DefeasiblePython.svg)](https://github.com/stefano-bragaglia/DefeasiblePython/pulls?q=is%3Apr+is%3Aclosed)
 
-An implementation of Defeasible Logic in Python
+An implementation of Defeasible Logic in Python.
 
 ![Screenshot](src/resources/Screenshot.png)
+
+## Running DePYsible
+
+#### Prerequisites
+
+___DePYsible___ is an application developed in _Python 3.6.5_ and requires __Python 3.6.x (or later)__ to run.
+A more recent version of _Python_ for your working environment, if needed, can be downloaded from the [official Python website](https://www.python.org).
+
+It is possible to use a virtual environment and install _DePYsible_ in a sandbox into a user directory. 
+__Virtualenv__ is possibly the most popular tool to create isolated Python environments. 
+Assuming that _Python 3.6.x (or later)_ has been successfully installed, _Virtualenv_ can be installed globally by running on a command line:
+
+    pip install virtualenv
+
+The instructions to create a virtual environment can be found in the section [Compiling DePYsible](#Compiling DePYsible) below. 
+
+
+Virtualenv to sandbox highly suggested.
+
+#### Obtaining DePYsible
+
+get it from pipy?
+
+clone it
+
+#### Compiling DePYsible
+
+Pybuilder is also needed.
+
+#### Configuring DePYsible
+
+Environment variable for editing.
+
+#### Running DePYsible
+
+Heu, rusticus amor! Accentor de emeritis aonides, anhelare elevatus! 
+Emeritis, albus itineris tramitems semper quaestio de magnum, placidus imber.
+Brevis ollas ducunt ad homo. Orexiss sunt rectors de mirabilis lanista. A falsis, absolutio nobilis cobaltum.
+
+##### Command line parameters
+
+Heu, rusticus amor! Accentor de emeritis aonides, anhelare elevatus! 
+Emeritis, albus itineris tramitems semper quaestio de magnum, placidus imber.
+Brevis ollas ducunt ad homo. Orexiss sunt rectors de mirabilis lanista. A falsis, absolutio nobilis cobaltum.
+
+##### Command line interface
+
+Heu, rusticus amor! Accentor de emeritis aonides, anhelare elevatus! 
+Emeritis, albus itineris tramitems semper quaestio de magnum, placidus imber.
+Brevis ollas ducunt ad homo. Orexiss sunt rectors de mirabilis lanista. A falsis, absolutio nobilis cobaltum.
+
 
 ## The Language
 
@@ -316,6 +367,15 @@ referenced by:
     COMMENT  ::= '%' .* 'EOL'
 
 no references
+
+
+## Grounding Problems
+
+The procedure for querying ___Defeasible Logic programs___ described in [Garciía and Simari](http://cs.uns.edu.ar/~ajg/papers/2004TPLPGarciaSimari.pdf) requires the problems to be _ground_.
+The authors suggest to use the ___Lifschitz convention___ to turn a ___schematic problem___ into a ___ground___ one.
+This implementation uses a simplified forward-chaining rule-based engine implementing the [Rete algorithm](https://en.wikipedia.org/wiki/Rete_algorithm).
+
+The engine builds a reticulate of 
 
 
 ## Future Works
