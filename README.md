@@ -1,9 +1,11 @@
 # DePYsible
 [![GitHub tag](https://img.shields.io/github/tag/stefano-bragaglia/DefeasiblePython.svg)](https://github.com/stefano-bragaglia/DefeasiblePython/tags)
-
 [![Contributors](https://img.shields.io/github/contributors/stefano-bragaglia/DefeasiblePython.svg)](https://github.com/stefano-bragaglia/DefeasiblePython/graphs/contributors)
-[![GitHub last commit (branch)](https://img.shields.io/github/last-commit/stefano-bragaglia/DefeasiblePython/master.svg)](https://github.com/stefano-bragaglia/DefeasiblePython)
+[![GitHub stars](https://img.shields.io/github/stars/stefano-bragaglia/DefeasiblePython.svg)](https://github.com/stefano-bragaglia/DefeasiblePython/stars)
+[![GitHub forks](https://img.shields.io/github/forks/stefano-bragaglia/DefeasiblePython.svg)](https://github.com/stefano-bragaglia/DefeasiblePython/forks)
 [![license](https://img.shields.io/github/license/stefano-bragaglia/DefeasiblePython.svg)](https://github.com/stefano-bragaglia/DefeasiblePython/blob/master/LICENSE)
+
+[![GitHub last commit (branch)](https://img.shields.io/github/last-commit/stefano-bragaglia/DefeasiblePython/master.svg)](https://github.com/stefano-bragaglia/DefeasiblePython)
 [![GitHub issues](https://img.shields.io/github/issues/stefano-bragaglia/DefeasiblePython.svg)](https://github.com/stefano-bragaglia/DefeasiblePython/issues)
 [![GitHub closed issues](https://img.shields.io/github/issues-closed/stefano-bragaglia/DefeasiblePython.svg)](https://github.com/stefano-bragaglia/DefeasiblePython/issues?q=is%3Aissue+is%3Aclosed)
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/stefano-bragaglia/DefeasiblePython.svg)](https://github.com/stefano-bragaglia/DefeasiblePython/pulls)
@@ -73,12 +75,24 @@ and deactivated by running:
 
 #### Obtaining DePYsible
 
-get it from pipy?
+__DePYsible__'s sources can be downloaded from [github.com/stefano-bragaglia/DePYsible.git](https://github.com/stefano-bragaglia/DePYsiblePython.git).
 
-clone it
+Alternatively, they can be cloned by issuing the following command on your terminal:
+
+    git clone https://github.com/stefano-bragaglia/DePYsible.git ./depysible
+
+The interpreter might soon become available on [pypi.org](https://pypi.org) too.
+Once available, it will be possible to installing it in the current _virtual_ (or _global_) _Python environment_ (see [above](#prerequisites)) with:
+
+    pip install DePYsible 
 
 #### Compiling DePYsible
 
+If __DePYsible__ has been installed as a package on a _virtual_ (or _global_) _Python environment_, the compiling is not required.
+
+
+If the sources have been downloaded instead, proceed as follows.
+Compiling is required if __DePYsible__'s sources have been downloaded instead of .
 Pybuilder is also needed.
 
 #### Configuring DePYsible

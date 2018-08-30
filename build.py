@@ -10,8 +10,50 @@ use_plugin("python.coverage")
 use_plugin("python.distutils")
 use_plugin("python.pycharm")
 
-name = "defeasible"
+name = "DePYsible"
 version = "0.1.0"
+summary = "Defeasible Logic and Argumentation Theory in pure Python"
+description = """
+___DePYsible___ is a Python implementation of [Defeasible Logic](https://en.wikipedia.org/wiki/Defeasible_logic) for [argumentation](https://en.wikipedia.org/wiki/Argumentation_theory).
+In particular, _Defeasible Logic_ is a non-monotonic logic proposed to formalize defeasible reasoning and argumentation.
+
+In a nutshell, _Defeasible Logic_ supports three types of propositions:
+
+* __strict rules__: to specify known facts or information that is always a consequence of other sure facts,
+* __defeasible rules__: to specify information that is typically or possibly a consequence of other information,
+* __undercutting defeaters__: to specify exceptions to defeasible rules.
+
+Some approaches like the one used in [this implementation](http://cs.uns.edu.ar/~ajg/papers/2004TPLPGarciaSimari.pdf), the _undercutting defeaters_ are derived by identifying the defeating __arguments__ among conflicting ones.
+(An _argument_ relates to a fact called __conclusion__ and includes the list of defeasible rules that have to be true to make the _conclusion_ to hold.)
+
+A priority ordering over the _defeasible rules_ and the _defeaters_ can be given or inferred by the __generalised specificity__ of the arguments. 
+Intuitively, this comparison criterion favours two aspects: it prefers arguments (1) with greater information content or (2) with less use of rules (more direct).
+In other words, given two conflicting arguments, the defeater is the more precise or more concise among them. 
+Arguments that have the same generalised specificity can be ordered by means of user-specified priorities on the rules. 
+
+During the process of deduction, the strict rules are always applied, while a defeasible rule can be applied only if no defeater of a higher priority specifies that it should not.
+This process decides if each defeasible fact is _true_, _false_ or _undecided_ and provides the clues supporting these decisions.
+
+    % Strict rules
+    bird(X) <- chicken(X).
+    bird(X) <- penguin(X).
+    ~flies(X) <- penguin(X).
+    
+    % Facts
+    chicken(tina).
+    penguin(tweety).
+    scared(tina).
+    
+    % Defeasible knowledge
+    flies(X) -< bird(X).
+    flies(X) -< chicken(X), scared(X).
+    ~flies(X) -< chicken(X).
+    nests_in_trees(X) -< flies(X).
+
+
+
+
+"""
 author = "Stefano Bragaglia"
 with open(os.path.join(os.path.dirname(__file__), 'LICENSE'), 'r') as file:
     license = file.read()
