@@ -12,7 +12,7 @@ use_plugin("python.pycharm")
 
 name = "DePYsible"
 version = "0.1.0"
-summary = "Defeasible Logic and Argumentation Theory in pure Python"
+summary = "Defeasible Logic and Argumentation Theory on First Order Logic in pure Python"
 description = """
 ___DePYsible___ is a Python implementation of [Defeasible Logic](https://en.wikipedia.org/wiki/Defeasible_logic) for [argumentation](https://en.wikipedia.org/wiki/Argumentation_theory).
 In particular, _Defeasible Logic_ is a non-monotonic logic proposed to formalize defeasible reasoning and argumentation.
@@ -50,9 +50,26 @@ This process decides if each defeasible fact is _true_, _false_ or _undecided_ a
     ~flies(X) -< chicken(X).
     nests_in_trees(X) -< flies(X).
 
+    ?- derive ~flies(tweety)
+        penguin(tweety), ~flies(tweety)  |-  ~flies(tweety)
+    
+    ?- argue ~flies(tina)
+        <{~flies(tina) -< chicken(tina).}, ~flies(tina)>
+        
+    ?- ~flies(tweety)
+    YES
+    
+    ? ~flies(tina)
+    NO
+        flies(tina) -< chicken(tina), scared(tina).
+    
+    ?- nests_in_trees(tweety)
+    UNDECIDED
+    
+    ?- ~nests_in_trees(tina)
+    UNKNOWN
 
-
-
+See [github.com/stefano-bragaglia/DePYsible.git](https://github.com/stefano-bragaglia/DePYsiblePython.git) for more details.
 """
 author = "Stefano Bragaglia"
 with open(os.path.join(os.path.dirname(__file__), 'LICENSE'), 'r') as file:
