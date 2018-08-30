@@ -51,9 +51,9 @@ This process decides if each defeasible fact is _true_, _false_ or _undecided_ a
     ~flies(X) -< chicken(X).
     nests_in_trees(X) -< flies(X).
 
-## Running DePYsible
+## Obtaining DePYsible
 
-#### Prerequisites
+### Prerequisites
 
 ___DePYsible___ is an application developed in _Python 3.6.5_ and requires __Python 3.6.x (or later)__ to run.
 A more recent version of _Python_ for your working environment, if needed, can be downloaded from the [official Python website](https://www.python.org).
@@ -73,7 +73,7 @@ and deactivated by running:
 
     deactivate
 
-#### Obtaining DePYsible
+### Obtaining DePYsible
 
 __DePYsible__'s sources can be downloaded from [github.com/stefano-bragaglia/DePYsible.git](https://github.com/stefano-bragaglia/DePYsiblePython.git).
 
@@ -86,14 +86,39 @@ Once available, it will be possible to installing it in the current _virtual_ (o
 
     pip install DePYsible 
 
-#### Compiling DePYsible
+### Compiling DePYsible
 
 If __DePYsible__ has been installed as a package on a _virtual_ (or _global_) _Python environment_, the compiling is not required.
+Otherwise compiling is mandatory, but _DePYsible_ supports [PyBuilder](http://pybuilder.github.io) which simplifies this step.
+
+Assuming that _Python 3.6.x_ (or later)_ and _Virtualenv_ are already installed (see [here](#prerequisites)), it's highly recommended to create a local virtual environment by running:
+
+    cd ./depysible
+    virtualenv --python=python3.6 .env
+
+The next step consists in installing _PyBuilder_ in the local virtual environment after having activated it:
+
+    source ./.env/bin/activate
+    pip install pybuilder
+    
+_PyBuilder_ is a build automation tool automates all the repetitive operations during the life cycle of the application such as installing the dependencies, testing the sources, compiling the sources, etc.
+In order to compile and install _DePYsible_, run the following commands:
+
+    pyb install_dependencies
+    pyb clean analyze publish
+    
+And eventually:
+
+    pip install ./target/dist/depysible-0.1.0/dist/depysible-0-1-0.tar.tgz
+    
+to install the compiled _DePYsible_ package into the local virtual environment.
+
+From now on, any time the local virtual enviroment is activated, the command `depysible` becomes available on the command line.
 
 
-If the sources have been downloaded instead, proceed as follows.
-Compiling is required if __DePYsible__'s sources have been downloaded instead of .
-Pybuilder is also needed.
+## Running DePYsible
+
+
 
 #### Configuring DePYsible
 
