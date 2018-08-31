@@ -12,27 +12,27 @@ use_plugin("python.pycharm")
 
 name = "DePYsible"
 version = "0.1.0"
-summary = "Defeasible Logic and Argumentation Theory on First Order Logic in pure Python"
+summary = "depysible Logic and Argumentation Theory on First Order Logic in pure Python"
 description = """
-___DePYsible___ is a Python implementation of [Defeasible Logic](https://en.wikipedia.org/wiki/Defeasible_logic) for [argumentation](https://en.wikipedia.org/wiki/Argumentation_theory).
-In particular, _Defeasible Logic_ is a non-monotonic logic proposed to formalize defeasible reasoning and argumentation.
+___DePYsible___ is a Python implementation of [depysible Logic](https://en.wikipedia.org/wiki/depysible_logic) for [argumentation](https://en.wikipedia.org/wiki/Argumentation_theory).
+In particular, _depysible Logic_ is a non-monotonic logic proposed to formalize depysible reasoning and argumentation.
 
-In a nutshell, _Defeasible Logic_ supports three types of propositions:
+In a nutshell, _depysible Logic_ supports three types of propositions:
 
 * __strict rules__: to specify known facts or information that is always a consequence of other sure facts,
-* __defeasible rules__: to specify information that is typically or possibly a consequence of other information,
-* __undercutting defeaters__: to specify exceptions to defeasible rules.
+* __depysible rules__: to specify information that is typically or possibly a consequence of other information,
+* __undercutting defeaters__: to specify exceptions to depysible rules.
 
 Some approaches like the one used in [this implementation](http://cs.uns.edu.ar/~ajg/papers/2004TPLPGarciaSimari.pdf), the _undercutting defeaters_ are derived by identifying the defeating __arguments__ among conflicting ones.
-(An _argument_ relates to a fact called __conclusion__ and includes the list of defeasible rules that have to be true to make the _conclusion_ to hold.)
+(An _argument_ relates to a fact called __conclusion__ and includes the list of depysible rules that have to be true to make the _conclusion_ to hold.)
 
-A priority ordering over the _defeasible rules_ and the _defeaters_ can be given or inferred by the __generalised specificity__ of the arguments. 
+A priority ordering over the _depysible rules_ and the _defeaters_ can be given or inferred by the __generalised specificity__ of the arguments. 
 Intuitively, this comparison criterion favours two aspects: it prefers arguments (1) with greater information content or (2) with less use of rules (more direct).
 In other words, given two conflicting arguments, the defeater is the more precise or more concise among them. 
 Arguments that have the same generalised specificity can be ordered by means of user-specified priorities on the rules. 
 
-During the process of deduction, the strict rules are always applied, while a defeasible rule can be applied only if no defeater of a higher priority specifies that it should not.
-This process decides if each defeasible fact is _true_, _false_ or _undecided_ and provides the clues supporting these decisions.
+During the process of deduction, the strict rules are always applied, while a depysible rule can be applied only if no defeater of a higher priority specifies that it should not.
+This process decides if each depysible fact is _true_, _false_ or _undecided_ and provides the clues supporting these decisions.
 
     % Strict rules
     bird(X) <- chicken(X).
@@ -44,7 +44,7 @@ This process decides if each defeasible fact is _true_, _false_ or _undecided_ a
     penguin(tweety).
     scared(tina).
     
-    % Defeasible knowledge
+    % depysible knowledge
     flies(X) -< bird(X).
     flies(X) -< chicken(X), scared(X).
     ~flies(X) -< chicken(X).
@@ -74,7 +74,7 @@ See [github.com/stefano-bragaglia/DePYsible.git](https://github.com/stefano-brag
 author = "Stefano Bragaglia"
 with open(os.path.join(os.path.dirname(__file__), 'LICENSE'), 'r') as file:
     license = file.read()
-url = "https://github.com/stefano-bragaglia/DefeasiblePython"
+url = "https://github.com/stefano-bragaglia/depysiblePython"
 default_task = ["clean", "analyze", "publish"]
 
 
@@ -91,16 +91,16 @@ def set_properties(project):
     project.set_property("coverage_allow_non_imported_modules", False)  # default is True
     project.set_property("coverage_exceptions", [
         "__init__",
-        "defeasible",
-        # "defeasible.domain",
-        "defeasible.domain.definitions",
-        # "defeasible.domain.interpretation",
-        "defeasible.domain.rendering",
-        # "defeasible.domain.rete",
-        "defeasible.domain.theme",
-        # "defeasible.language",
-        # "defeasible.language.grammar",
-        # "defeasible.language.visitor",
+        "depysible",
+        # "depysible.domain",
+        "depysible.domain.definitions",
+        # "depysible.domain.interpretation",
+        "depysible.domain.rendering",
+        # "depysible.domain.rete",
+        "depysible.domain.theme",
+        # "depysible.language",
+        # "depysible.language.grammar",
+        # "depysible.language.visitor",
     ])
 
     project.set_property("coverage_threshold_warn", 35)  # default is 70

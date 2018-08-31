@@ -7,7 +7,7 @@ from colorama import Back
 from colorama import Fore
 from colorama import Style
 
-from defeasible.domain.interpretation import Answer, Derivation, Structure
+from depysible.domain.interpretation import Answer, Derivation, Structure
 
 Format = namedtuple('Format', 'back fore style')
 
@@ -32,8 +32,8 @@ class Renderer:
 
     @staticmethod
     def comma(blind: bool = False) -> str:
-        from defeasible.domain.theme import PUNCTUATION
-        from defeasible.domain.theme import RESET
+        from depysible.domain.theme import PUNCTUATION
+        from depysible.domain.theme import RESET
 
         if blind:
             return ', '
@@ -43,8 +43,8 @@ class Renderer:
 
     @staticmethod
     def colon(blind: bool = False) -> str:
-        from defeasible.domain.theme import ARGUMENTATION
-        from defeasible.domain.theme import RESET
+        from depysible.domain.theme import ARGUMENTATION
+        from depysible.domain.theme import RESET
 
         if blind:
             return ' ; '
@@ -54,8 +54,8 @@ class Renderer:
 
     @staticmethod
     def empty(blind: bool = False) -> str:
-        from defeasible.domain.theme import ARGUMENTATION
-        from defeasible.domain.theme import RESET
+        from depysible.domain.theme import ARGUMENTATION
+        from depysible.domain.theme import RESET
 
         if blind:
             return '∅'
@@ -65,8 +65,8 @@ class Renderer:
 
     @staticmethod
     def lcur(blind: bool = False) -> str:
-        from defeasible.domain.theme import ARGUMENTATION
-        from defeasible.domain.theme import RESET
+        from depysible.domain.theme import ARGUMENTATION
+        from depysible.domain.theme import RESET
 
         if blind:
             return '{'
@@ -76,8 +76,8 @@ class Renderer:
 
     @staticmethod
     def rcur(blind: bool = False) -> str:
-        from defeasible.domain.theme import ARGUMENTATION
-        from defeasible.domain.theme import RESET
+        from depysible.domain.theme import ARGUMENTATION
+        from depysible.domain.theme import RESET
 
         if blind:
             return '}'
@@ -87,8 +87,8 @@ class Renderer:
 
     @staticmethod
     def lpar(blind: bool = False) -> str:
-        from defeasible.domain.theme import PUNCTUATION
-        from defeasible.domain.theme import RESET
+        from depysible.domain.theme import PUNCTUATION
+        from depysible.domain.theme import RESET
 
         if blind:
             return '('
@@ -98,8 +98,8 @@ class Renderer:
 
     @staticmethod
     def rpar(blind: bool = False) -> str:
-        from defeasible.domain.theme import PUNCTUATION
-        from defeasible.domain.theme import RESET
+        from depysible.domain.theme import PUNCTUATION
+        from depysible.domain.theme import RESET
 
         if blind:
             return ')'
@@ -109,8 +109,8 @@ class Renderer:
 
     @staticmethod
     def lang(blind: bool = False) -> str:
-        from defeasible.domain.theme import PUNCTUATION
-        from defeasible.domain.theme import RESET
+        from depysible.domain.theme import PUNCTUATION
+        from depysible.domain.theme import RESET
 
         if blind:
             return '<'
@@ -120,8 +120,8 @@ class Renderer:
 
     @staticmethod
     def rang(blind: bool = False) -> str:
-        from defeasible.domain.theme import PUNCTUATION
-        from defeasible.domain.theme import RESET
+        from depysible.domain.theme import PUNCTUATION
+        from depysible.domain.theme import RESET
 
         if blind:
             return '>'
@@ -131,8 +131,8 @@ class Renderer:
 
     @staticmethod
     def stop(blind: bool = False) -> str:
-        from defeasible.domain.theme import PUNCTUATION
-        from defeasible.domain.theme import RESET
+        from depysible.domain.theme import PUNCTUATION
+        from depysible.domain.theme import RESET
 
         if blind:
             return '.'
@@ -142,8 +142,8 @@ class Renderer:
 
     @staticmethod
     def negate(blind: bool = False) -> str:
-        from defeasible.domain.theme import NEGATION
-        from defeasible.domain.theme import RESET
+        from depysible.domain.theme import NEGATION
+        from depysible.domain.theme import RESET
 
         if blind:
             return '~'
@@ -153,8 +153,8 @@ class Renderer:
 
     @staticmethod
     def strict(blind: bool = False) -> str:
-        from defeasible.domain.theme import STRICT
-        from defeasible.domain.theme import RESET
+        from depysible.domain.theme import STRICT
+        from depysible.domain.theme import RESET
 
         if blind:
             return ' <- '
@@ -164,8 +164,8 @@ class Renderer:
 
     @staticmethod
     def defeasible(blind: bool = False) -> str:
-        from defeasible.domain.theme import DEFEASIBLE
-        from defeasible.domain.theme import RESET
+        from depysible.domain.theme import DEFEASIBLE
+        from depysible.domain.theme import RESET
 
         if blind:
             return ' -< '
@@ -175,8 +175,8 @@ class Renderer:
 
     @staticmethod
     def strictly(blind: bool = False) -> str:
-        from defeasible.domain.theme import STRICT
-        from defeasible.domain.theme import RESET
+        from depysible.domain.theme import STRICT
+        from depysible.domain.theme import RESET
 
         if blind:
             return ' |- '
@@ -186,8 +186,8 @@ class Renderer:
 
     @staticmethod
     def defeasibly(blind: bool = False) -> str:
-        from defeasible.domain.theme import DEFEASIBLE
-        from defeasible.domain.theme import RESET
+        from depysible.domain.theme import DEFEASIBLE
+        from depysible.domain.theme import RESET
 
         if blind:
             return ' |~ '
@@ -197,10 +197,10 @@ class Renderer:
 
     @classmethod
     def render(cls, obj: Any, blind: bool = False) -> str:
-        from defeasible.domain.definitions import Atom
-        from defeasible.domain.definitions import Literal
-        from defeasible.domain.definitions import Rule
-        from defeasible.domain.definitions import Program
+        from depysible.domain.definitions import Atom
+        from depysible.domain.definitions import Literal
+        from depysible.domain.definitions import Rule
+        from depysible.domain.definitions import Program
 
         if type(obj) in [bool, int, float, str]:
             return cls.render_term(obj, blind)
@@ -231,12 +231,12 @@ class Renderer:
 
     @classmethod
     def render_term(cls, term: 'Term', blind: bool = False):
-        from defeasible.domain.theme import MUTE_VARIABLE
-        from defeasible.domain.theme import RESET
-        from defeasible.domain.theme import STRING
-        from defeasible.domain.theme import TERM
-        from defeasible.domain.theme import VALUE
-        from defeasible.domain.theme import VARIABLE
+        from depysible.domain.theme import MUTE_VARIABLE
+        from depysible.domain.theme import RESET
+        from depysible.domain.theme import STRING
+        from depysible.domain.theme import TERM
+        from depysible.domain.theme import VALUE
+        from depysible.domain.theme import VARIABLE
 
         if blind:
             return term
@@ -264,8 +264,8 @@ class Renderer:
 
     @classmethod
     def render_functor(cls, atom: 'Atom', blind: bool = False) -> str:
-        from defeasible.domain.theme import FUNCTOR
-        from defeasible.domain.theme import RESET
+        from depysible.domain.theme import FUNCTOR
+        from depysible.domain.theme import RESET
 
         if blind:
             return atom.functor
@@ -283,7 +283,7 @@ class Renderer:
 
     @classmethod
     def render_rule(cls, rule: 'Rule', blind: bool = False) -> str:
-        from defeasible.domain.definitions import RuleType
+        from depysible.domain.definitions import RuleType
 
         content = cls.render_literal(rule.head, blind)
         if rule.body or rule.type == RuleType.DEFEASIBLE:
@@ -299,8 +299,8 @@ class Renderer:
 
     @classmethod
     def render_comment(cls, comment: str, blind: bool = False) -> str:
-        from defeasible.domain.theme import COMMENT
-        from defeasible.domain.theme import RESET
+        from depysible.domain.theme import COMMENT
+        from depysible.domain.theme import RESET
 
         return '%s%s%s' % (COMMENT, comment, RESET)
 
@@ -310,7 +310,7 @@ class Renderer:
 
     @classmethod
     def render_program(cls, program: 'Program', blind: bool = False) -> str:
-        from defeasible.domain.definitions import RuleType
+        from depysible.domain.definitions import RuleType
 
         stricts = cls.render_rules(program, program.get_rules(RuleType.STRICT), blind)
         if stricts:
@@ -328,7 +328,7 @@ class Renderer:
 
     @classmethod
     def render_derivation(cls, derivation: 'Derivation', blind: bool = False) -> str:
-        from defeasible.domain.definitions import RuleType
+        from depysible.domain.definitions import RuleType
 
         explanation = cls.comma(blind=blind).join(
             cls.render_literal(rule.head, blind=blind)
@@ -359,8 +359,8 @@ class Renderer:
 
     @classmethod
     def render_answer(cls, answer: Answer, blind: bool = False) -> str:
-        from defeasible.domain.theme import ANSWER
-        from defeasible.domain.theme import RESET
+        from depysible.domain.theme import ANSWER
+        from depysible.domain.theme import RESET
 
         if blind:
             return answer.name

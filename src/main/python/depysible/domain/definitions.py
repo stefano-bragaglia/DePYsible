@@ -79,8 +79,8 @@ class Literal:
     def parse(content: str) -> 'Literal':
         from arpeggio import ParserPython
         from arpeggio import visit_parse_tree
-        from defeasible.language.grammar import literal, comment
-        from defeasible.language.visitor import DefeasibleVisitor
+        from depysible.language.grammar import literal, comment
+        from depysible.language.visitor import DefeasibleVisitor
 
         parser = ParserPython(literal, comment_def=comment)
         parse_tree = parser.parse(content)
@@ -148,8 +148,8 @@ class Rule:
     def parse(content: str) -> 'Rule':
         from arpeggio import ParserPython
         from arpeggio import visit_parse_tree
-        from defeasible.language.grammar import rule, comment
-        from defeasible.language.visitor import DefeasibleVisitor
+        from depysible.language.grammar import rule, comment
+        from depysible.language.visitor import DefeasibleVisitor
 
         parser = ParserPython(rule, comment_def=comment)
         parse_tree = parser.parse(content)
@@ -196,8 +196,8 @@ class Program:
     def parse(content: str) -> 'Program':
         from arpeggio import ParserPython
         from arpeggio import visit_parse_tree
-        from defeasible.language.grammar import program, comment
-        from defeasible.language.visitor import DefeasibleVisitor
+        from depysible.language.grammar import program, comment
+        from depysible.language.visitor import DefeasibleVisitor
 
         parser = ParserPython(program, comment_def=comment)
         parse_tree = parser.parse(content)
@@ -293,7 +293,7 @@ class Program:
         return True
 
     def get_ground_program(self) -> 'Program':
-        from defeasible.domain.rete import fire_rules
+        from depysible.domain.rete import fire_rules
 
         if self.is_ground():
             return self

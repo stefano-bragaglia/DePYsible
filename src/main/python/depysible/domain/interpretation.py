@@ -9,10 +9,10 @@ from typing import Tuple
 from dataclasses import dataclass
 from dataclasses import field
 
-from defeasible.domain.definitions import Literal
-from defeasible.domain.definitions import Program
-from defeasible.domain.definitions import Rule
-from defeasible.domain.definitions import RuleType
+from depysible.domain.definitions import Literal
+from depysible.domain.definitions import Program
+from depysible.domain.definitions import Rule
+from depysible.domain.definitions import RuleType
 
 
 @dataclass(init=True, repr=False, eq=True, order=True)

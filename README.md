@@ -82,7 +82,7 @@ Alternatively, they can be cloned by issuing the following command on your termi
     git clone https://github.com/stefano-bragaglia/DePYsible.git ./depysible
 
 The interpreter might soon become available on [pypi.org](https://pypi.org) too.
-Once available, it will be possible to installing it in the current _virtual_ (or _global_) _Python environment_ (see [above](#prerequisites)) with:
+Once available, it will be possible to directly installing it into the current _virtual_ (or _global_) _Python environment_ (see [above](#prerequisites)) with:
 
     pip install DePYsible 
 
@@ -105,20 +105,15 @@ _PyBuilder_ is a build automation tool automates all the repetitive operations d
 In order to compile and install _DePYsible_, run the following commands:
 
     pyb install_dependencies
-    pyb clean analyze publish
+    pyb install
     
-And eventually:
-
-    pip install ./target/dist/depysible-0.1.0/dist/depysible-0-1-0.tar.tgz
-    
-to install the compiled _DePYsible_ package into the local virtual environment.
-
 From now on, any time the local virtual enviroment is activated, the command `depysible` becomes available on the command line.
 
 
 ## Running DePYsible
 
-
+__DePYsible__ comes as a _command line interface_ application.
+It can be invoked with a few parameters
 
 #### Configuring DePYsible
 

@@ -2,12 +2,12 @@ from unittest import TestCase
 
 from assertpy import assert_that
 
-from defeasible.domain.definitions import Literal
-from defeasible.domain.definitions import Program
-from defeasible.domain.definitions import Rule
-from defeasible.domain.interpretation import Derivation
-from defeasible.domain.interpretation import Interpreter
-from defeasible.domain.interpretation import disagree
+from depysible.domain.definitions import Literal
+from depysible.domain.definitions import Program
+from depysible.domain.definitions import Rule
+from depysible.domain.interpretation import Derivation
+from depysible.domain.interpretation import Interpreter
+from depysible.domain.interpretation import disagree
 
 
 class TestRebuttals(TestCase):

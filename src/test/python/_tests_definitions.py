@@ -4,10 +4,10 @@ from arpeggio import NoMatch
 from assertpy import assert_that
 from assertpy import fail
 
-from defeasible.domain.definitions import Atom
-from defeasible.domain.definitions import Literal
-from defeasible.domain.definitions import Rule
-from defeasible.domain.definitions import RuleType
+from depysible.domain.definitions import Atom
+from depysible.domain.definitions import Literal
+from depysible.domain.definitions import Rule
+from depysible.domain.definitions import RuleType
 
 
 class TestAtom(TestCase):

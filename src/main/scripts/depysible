@@ -11,19 +11,19 @@ import colorama
 import coloredlogs
 import verboselogs
 
-from defeasible.domain.definitions import Literal
-from defeasible.domain.definitions import Program
-from defeasible.domain.interpretation import Interpreter
-from defeasible.domain.rendering import COMMAND
-from defeasible.domain.rendering import LOCATION
-from defeasible.domain.rendering import MAIN
-from defeasible.domain.rendering import MUTED
-from defeasible.domain.rendering import PERSON
-from defeasible.domain.rendering import Renderer
-from defeasible.domain.rendering import TITLE
-from defeasible.domain.rendering import URL
-from defeasible.domain.rendering import VALUE
-from defeasible.domain.rendering import render_as
+from depysible.domain.definitions import Literal
+from depysible.domain.definitions import Program
+from depysible.domain.interpretation import Interpreter
+from depysible.domain.rendering import COMMAND
+from depysible.domain.rendering import LOCATION
+from depysible.domain.rendering import MAIN
+from depysible.domain.rendering import MUTED
+from depysible.domain.rendering import PERSON
+from depysible.domain.rendering import Renderer
+from depysible.domain.rendering import TITLE
+from depysible.domain.rendering import URL
+from depysible.domain.rendering import VALUE
+from depysible.domain.rendering import render_as
 
 colorama.init()
 verboselogs.install()
@@ -240,9 +240,9 @@ class DefeasibleShell(Cmd):
     def handle(self, arg):
         from arpeggio import ParserPython
         from arpeggio import visit_parse_tree
-        from defeasible.language.grammar import comment
-        from defeasible.language.grammar import nothing
-        from defeasible.language.visitor import DefeasibleVisitor
+        from depysible.language.grammar import comment
+        from depysible.language.grammar import nothing
+        from depysible.language.visitor import DefeasibleVisitor
 
         parser = ParserPython(nothing, comment_def=comment)
         try:
@@ -343,7 +343,7 @@ def license_(blind: bool = False) -> str:
 
 
 if __name__ == '__main__':
-    parser = ArgumentParser(prog='defeasible', add_help=True, allow_abbrev=True)
+    parser = ArgumentParser(prog='depysible', add_help=True, allow_abbrev=True)
     parser.add_argument('-b', '--blind', help='ignore colours to render output', action='store_true', default=False)
     parser.add_argument('filename', help='load the file with given name', nargs='?')
     namespace = parser.parse_args()
