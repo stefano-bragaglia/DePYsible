@@ -148,7 +148,8 @@ class DefeasibleShell(Cmd):
     def do_edit(self, arg):
         """Edit the current program in an external editor (nano)"""
         self.save(self.filename)
-        subprocess.call(['nano', self.filename])
+        editor = os.getenv('DEPYSIBLE_EDITOR', 'nano')
+        subprocess.call([editor, self.filename])
 
     def do_listing(self, arg):
         """List the rules of the current program"""

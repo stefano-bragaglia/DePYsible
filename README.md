@@ -107,31 +107,158 @@ In order to compile and install _DePYsible_, run the following commands:
     pyb install_dependencies
     pyb install
     
-From now on, any time the local virtual enviroment is activated, the command `depysible` becomes available on the command line.
+From now on, any time the local virtual environment is activated, the command `depysible` becomes available on the command line.
 
 
 ## Running DePYsible
 
 __DePYsible__ comes as a _command line interface_ application.
-It can be invoked with a few parameters
+Once it has been installed (see [above](#compiling-depysible)), _DePYsible_ can be simply run by invoking it at the prompt:
 
-#### Configuring DePYsible
+    > depysible
+    
+    Welcome to Defeasible 0.1.0 (Darwin-18.0.0-x86_64-i386-64bit)
+    Defeasible comes with ABSOLUTELY NO WARRANTY. This is free software.
+    Type "help", "copyright", "credits" and "license" for more information.
+    
+    ?- 
 
-Environment variable for editing.
+### Command line parameters
 
-#### Running DePYsible
+If no parameters is given, _DePYsible_ is run with default configuration. 
+By passing `-h` or `--help` as a parameter, the list of possible parameters is returned:
+
+    > depysible --help
+    
+    usage: depysible [-h] [-b] [filename]
+    
+    positional arguments:
+      filename     load the file with given name
+    
+    optional arguments:
+      -h, --help   show this help message and exit
+      -b, --blind  ignore colours to render output
+
+#### `-h`, `--help`
+
+This parameter will display the list of possible parameters for _DePYsible_, as shown above.
+
+#### `-b`, `--blind`
+
+Normally, _DePYsible_ highlights the syntax of program that it holds in memory.
+At the moment, only the dark theme displayed in the opening screenshot is supported.
+On different setups, this theme might not render well or some people might find the syntax highlighting distracting.
+In either cases the `-b`, `--blind` parameter will help by turning off the syntax highlighting. 
+
+#### `filename`
+
+When given, this parameter will preload the program contained in the file with the given name into the _DePYsible_ interpreter. 
+For instance, the following command will load `example.pl` into memory when started:
+
+    > depysible example.pl 
+
+### Command line interface actions
+
+__DePYsible__ is a command-line interpreter application.
+When started, it enters into a loop that displays a message on the screen and then waits for a user's input.
+
+Normally _DePYsible_ presumes that a program is already loaded in memory, and assumes that anything the user types is a valid statement for its language.
+Valid statements are either sets of rules or just literals (see [language](#language) below).
+
+Any valid set of rules is automatically appended to the program currently in memory.
+The following input, for instance, adds a _strict rule_ (every chicken is a bird) and a _fact_ (Tina is a chicken):
+
+    ?- bird(X) <- chicken(X). chicken(tina).
+    
+Any literal, instead, triggers the defeasible argumentation algorithm which checks whether it is true or not according to the information available on the domain.
+Assuming that `example.pl` has been loaded into memory, the given input triggers the following output:
+
+    ?- ~flies(tina)
+    NO
+        flies(tina) -< chicken(tina), scared(tina).
+        
+This output means that the interpreter believes the fact _"Tina does not fly"_ to be false **because** the opposite could be derived from the strict domain's knowledge and the given ground rules (if any): Tina, being a chicken, could fly if scared.   
+
+The interpreter accepts more specialised commands that are introduced in alphabetical order in the following sections.
+
+#### argue
 
 Heu, rusticus amor! Accentor de emeritis aonides, anhelare elevatus! 
 Emeritis, albus itineris tramitems semper quaestio de magnum, placidus imber.
 Brevis ollas ducunt ad homo. Orexiss sunt rectors de mirabilis lanista. A falsis, absolutio nobilis cobaltum.
 
-##### Command line parameters
+#### copyright
 
 Heu, rusticus amor! Accentor de emeritis aonides, anhelare elevatus! 
 Emeritis, albus itineris tramitems semper quaestio de magnum, placidus imber.
 Brevis ollas ducunt ad homo. Orexiss sunt rectors de mirabilis lanista. A falsis, absolutio nobilis cobaltum.
 
-##### Command line interface
+#### credits
+
+Heu, rusticus amor! Accentor de emeritis aonides, anhelare elevatus! 
+Emeritis, albus itineris tramitems semper quaestio de magnum, placidus imber.
+Brevis ollas ducunt ad homo. Orexiss sunt rectors de mirabilis lanista. A falsis, absolutio nobilis cobaltum.
+
+#### derive
+
+Heu, rusticus amor! Accentor de emeritis aonides, anhelare elevatus! 
+Emeritis, albus itineris tramitems semper quaestio de magnum, placidus imber.
+Brevis ollas ducunt ad homo. Orexiss sunt rectors de mirabilis lanista. A falsis, absolutio nobilis cobaltum.
+
+#### edit
+
+Heu, rusticus amor! Accentor de emeritis aonides, anhelare elevatus! 
+Emeritis, albus itineris tramitems semper quaestio de magnum, placidus imber.
+Brevis ollas ducunt ad homo. Orexiss sunt rectors de mirabilis lanista. A falsis, absolutio nobilis cobaltum.
+
+> ###### Configuring the default editor 
+> Heu, rusticus amor! Accentor de emeritis aonides, anhelare elevatus! 
+> Emeritis, albus itineris tramitems semper quaestio de magnum, placidus imber.
+> Brevis ollas ducunt ad homo. Orexiss sunt rectors de mirabilis lanista. A falsis, absolutio nobilis cobaltum.
+
+#### ground
+
+Heu, rusticus amor! Accentor de emeritis aonides, anhelare elevatus! 
+Emeritis, albus itineris tramitems semper quaestio de magnum, placidus imber.
+Brevis ollas ducunt ad homo. Orexiss sunt rectors de mirabilis lanista. A falsis, absolutio nobilis cobaltum.
+
+#### halt
+
+Heu, rusticus amor! Accentor de emeritis aonides, anhelare elevatus! 
+Emeritis, albus itineris tramitems semper quaestio de magnum, placidus imber.
+Brevis ollas ducunt ad homo. Orexiss sunt rectors de mirabilis lanista. A falsis, absolutio nobilis cobaltum.
+
+#### help
+
+Heu, rusticus amor! Accentor de emeritis aonides, anhelare elevatus! 
+Emeritis, albus itineris tramitems semper quaestio de magnum, placidus imber.
+Brevis ollas ducunt ad homo. Orexiss sunt rectors de mirabilis lanista. A falsis, absolutio nobilis cobaltum.
+
+#### license
+
+Heu, rusticus amor! Accentor de emeritis aonides, anhelare elevatus! 
+Emeritis, albus itineris tramitems semper quaestio de magnum, placidus imber.
+Brevis ollas ducunt ad homo. Orexiss sunt rectors de mirabilis lanista. A falsis, absolutio nobilis cobaltum.
+
+#### listing
+
+Heu, rusticus amor! Accentor de emeritis aonides, anhelare elevatus! 
+Emeritis, albus itineris tramitems semper quaestio de magnum, placidus imber.
+Brevis ollas ducunt ad homo. Orexiss sunt rectors de mirabilis lanista. A falsis, absolutio nobilis cobaltum.
+
+#### load
+
+Heu, rusticus amor! Accentor de emeritis aonides, anhelare elevatus! 
+Emeritis, albus itineris tramitems semper quaestio de magnum, placidus imber.
+Brevis ollas ducunt ad homo. Orexiss sunt rectors de mirabilis lanista. A falsis, absolutio nobilis cobaltum.
+
+#### reset
+
+Heu, rusticus amor! Accentor de emeritis aonides, anhelare elevatus! 
+Emeritis, albus itineris tramitems semper quaestio de magnum, placidus imber.
+Brevis ollas ducunt ad homo. Orexiss sunt rectors de mirabilis lanista. A falsis, absolutio nobilis cobaltum.
+
+#### save
 
 Heu, rusticus amor! Accentor de emeritis aonides, anhelare elevatus! 
 Emeritis, albus itineris tramitems semper quaestio de magnum, placidus imber.
