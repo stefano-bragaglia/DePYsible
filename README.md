@@ -33,6 +33,18 @@ This process decides if each defeasible fact is _true_, _false_ or _undecided_ a
  
 ![Screenshot](src/resources/Screenshot.png)
 
+##  TL;DR
+
+    > git clone https://github.com/stefano-bragaglia/DePYsible.git ./depysible
+    > cd depysible
+    > pip install virtualenv
+    > virtualenv --python=python3.6 .env
+    > source ./.env/bin/activate
+    > pip install pybuilder
+    > pyb install_dependencies
+    > pyb install
+    > depysible example.pl
+
 ## Example
 
     % Strict rules
@@ -50,6 +62,14 @@ This process decides if each defeasible fact is _true_, _false_ or _undecided_ a
     flies(X) -< chicken(X), scared(X).
     ~flies(X) -< chicken(X).
     nests_in_trees(X) -< flies(X).
+
+This program is a typical _Defeasible Logic_ program that states that every chicken is a bird, that every penguin is a bird and that penguins don't fly (**strict rules**).
+We also know that Tina is a chicken, Tweety is a penguin and that Tina is scared (**facts**).
+
+The program then says that birds can possibly fly, that scared chickens might fly, that chickens usually don't fly and that flying animals usually nest in trees (**defeasible knowledge**).
+
+The argumentative procedure for _Defeasible Logic_ can derive, for instance, that Tweety doesn't fly for sure (directly entailed from the strict knowledge) but also that Tina flies because she's scared (defeasibly entailed from the strict knowledge **and** `flies(X) -< chicken(X), scared(X).`).
+   
 
 ## Obtaining DePYsible
 
